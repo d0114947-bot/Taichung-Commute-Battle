@@ -1,0 +1,1711 @@
+<title>台中通勤大作戰</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap">
+<style>
+/* 版面：左欄是一張「通勤單」（出發、抵達、時間、比較），右側是地圖；手機上下排列。
+   風格：純白紙面、細線、明體標題，只用一個朱色做重點。刻意只做亮色版。 */
+:root{
+  --bg:#ffffff; --ink:#262626; --ink2:#4d4d4d; --muted:#8e8e8e; --hair:#e8e8e8; --hair2:#f5f5f5;
+  --accent:#a8412d; --accent-soft:#f8eeeb; --ok:#3e6e54; --danger:#a8412d;
+  --mrt:#3e8e62; --bus:#c47830; --rail:#3c5aa0; --car:#6a5aa8; --scooter:#b24f6e; --walk:#7a7a7a; --bike:#2f878c; --taxi:#ad8c1b;
+  --policy:#c23b28; --project:#2e4a8e; --exist:#a3a3a3; --orangeline:#d9822b;
+  --tile-bg:#fcfcfb; --tile-road:#efefec; --tile-block1:#f7f7f5; --tile-block2:#f4f4f2; --tile-block3:#f8f6f3; --tile-park:#eff3ec;
+  --serif:'Noto Serif TC','Songti TC','PMingLiU',serif;
+  --sans:'Noto Sans TC',-apple-system,'PingFang TC','Microsoft JhengHei',system-ui,sans-serif;
+  color-scheme:light;
+}
+[hidden]{display:none!important}
+.live-mk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--danger);background:#fff;font-size:13px;line-height:1;display:grid;place-items:center;cursor:pointer;transform:translate(-50%,-50%);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.k.tt{font-size:10px;letter-spacing:.08em;color:var(--ink2);border:1px solid currentColor;border-radius:2px;padding:0 4px;margin-left:2px}
+.live-note{color:var(--danger)}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:400;font-size:15px;line-height:1.7;margin:0;letter-spacing:.02em}
+*{box-sizing:border-box}
+button,input,select{font:inherit;color:inherit;letter-spacing:inherit}
+:focus-visible{outline:1.5px solid var(--accent);outline-offset:3px}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--hair);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--accent)}
+
+/* Leaflet 1.9.4 核心樣式（精簡內嵌） */
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent;font-size:12px;background:var(--tile-bg)}
+.leaflet-tile,.leaflet-marker-icon{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+.leaflet-marker-icon{display:block}
+.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}
+.leaflet-container .leaflet-tile-pane img,.leaflet-container .leaflet-tile{max-width:none!important;max-height:none!important;width:auto;padding:0}
+.leaflet-container.leaflet-touch-zoom{touch-action:pan-x pan-y}
+.leaflet-container.leaflet-touch-drag{touch-action:none}
+.leaflet-tile{filter:inherit;visibility:hidden}
+.leaflet-tile-loaded{visibility:inherit}
+.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200;filter:grayscale(1) contrast(.9) brightness(1.06)}.leaflet-overlay-pane{z-index:400}.leaflet-marker-pane{z-index:600}.leaflet-popup-pane{z-index:700}
+.leaflet-map-pane svg{z-index:200}
+.leaflet-control{position:relative;z-index:800;pointer-events:auto;float:left;clear:both}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
+.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+.leaflet-right .leaflet-control{float:right}
+.leaflet-top .leaflet-control{margin-top:12px}.leaflet-right .leaflet-control{margin-right:12px}
+.leaflet-zoom-animated{transform-origin:0 0}
+.leaflet-zoom-anim .leaflet-zoom-animated{transition:transform .25s cubic-bezier(0,0,.25,1)}
+.leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{transition:none}
+.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}
+.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:grab}.leaflet-dragging .leaflet-grab{cursor:grabbing}
+.leaflet-marker-icon,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}
+.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive{pointer-events:auto}
+.leaflet-marker-draggable{cursor:move}
+.leaflet-bar{border:1px solid var(--hair);background:#fff}
+.leaflet-bar a{background:#fff;color:var(--ink2);border-bottom:1px solid var(--hair);width:30px;height:30px;display:block;text-align:center;text-decoration:none;font:300 18px/30px var(--sans)}
+.leaflet-bar a:last-child{border-bottom:none}
+.leaflet-container .leaflet-control-attribution{background:rgba(255,255,255,.9);color:var(--muted);margin:0;padding:1px 6px;font-size:10.5px;line-height:1.5}
+.leaflet-control-attribution a{color:var(--ink2);text-decoration:none}
+
+/* ---------- 版面 ---------- */
+.app{display:flex;flex-direction:column;min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--ink);margin-bottom:20px;flex-wrap:wrap}
+.top h1{font-family:var(--serif);font-weight:600;font-size:28px;letter-spacing:.12em;margin:0;line-height:1.2}
+.top .en{font-size:11px;letter-spacing:.32em;color:var(--muted);text-transform:uppercase;margin-left:12px}
+.top nav{display:flex;gap:18px;font-size:13px}
+.linkbtn{background:none;border:0;padding:0;cursor:pointer;color:var(--ink2);text-decoration:underline;text-decoration-color:var(--hair);text-underline-offset:4px}
+.linkbtn:hover{text-decoration-color:var(--accent)}
+.stage{display:grid;grid-template-columns:minmax(330px,420px) minmax(0,1fr);gap:28px;flex:1;min-height:0}
+@media (max-width:920px){.stage{grid-template-columns:1fr;gap:20px}}
+.panel{display:flex;flex-direction:column;gap:22px;min-width:0}
+.mapbox{position:relative;border:1px solid var(--hair);min-height:620px;background:var(--tile-bg);overflow:hidden}
+@media (max-width:920px){.mapbox{min-height:440px;order:-1}}
+#map{position:absolute;inset:0;overflow:hidden}
+
+/* ---------- 通勤單 ---------- */
+.sec{display:flex;flex-direction:column;gap:10px}
+.lbl{font-size:11.5px;letter-spacing:.24em;color:var(--muted)}
+.where{display:grid;grid-template-columns:22px 1fr;column-gap:10px;row-gap:2px;align-items:start}
+.where .dot{width:10px;height:10px;border-radius:50%;margin:16px 0 0 5px;border:1.5px solid var(--ink)}
+.where .dot.d{background:var(--accent);border-color:var(--accent)}
+.where .rail{grid-column:1;width:1px;background:var(--hair);margin-left:10px;height:100%}
+.addr-in{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--hair);min-width:0}
+.addr-in:focus-within{border-bottom-color:var(--ink)}
+.addr-in input{flex:1;min-width:0;border:0;padding:9px 0;background:transparent;font-family:var(--serif);font-size:17px;outline:none}
+.addr-in input::placeholder{color:#b8b8b8}
+.addr-in button{border:0;background:none;color:var(--accent);font-size:13px;cursor:pointer;padding:6px 0;white-space:nowrap}
+.addr-meta{font-size:12px;color:var(--muted);line-height:1.5;min-height:1.5em}
+.addr-meta b{font-weight:500;color:var(--ink2)}
+.sugg{list-style:none;margin:4px 0 0;padding:0;border:1px solid var(--hair);background:#fff}
+.sugg li+li{border-top:1px solid var(--hair2)}
+.sugg button{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;cursor:pointer;font-size:13.5px;line-height:1.45}
+.sugg button:hover{background:var(--hair2)}
+.sugg small{display:block;color:var(--muted);font-size:11.5px}
+.presets{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12.5px}
+.presets button{background:none;border:0;padding:0;color:var(--ink2);cursor:pointer;text-decoration:underline;text-decoration-color:var(--hair);text-underline-offset:3px}
+.when{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.when label{display:flex;flex-direction:column;gap:2px;font-size:11.5px;letter-spacing:.24em;color:var(--muted)}
+.when input{border:0;border-bottom:1px solid var(--hair);padding:7px 0;font-family:var(--serif);font-size:17px;background:transparent;letter-spacing:.04em;color:var(--ink)}
+
+/* ---------- 比較 ---------- */
+.lead{font-family:var(--serif);font-size:19px;line-height:1.6;text-wrap:balance;margin:0}
+.lead em{font-style:normal;color:var(--accent)}
+.rows{border-top:1px solid var(--ink)}
+.row{display:grid;grid-template-columns:30px 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--hair);padding:12px 2px;cursor:pointer}
+.row:hover{background:var(--hair2)}
+.row .ic{font-size:19px;filter:grayscale(.35)}
+.row .nm{font-size:15px;font-weight:500;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.row .nm small{font-size:11px;color:var(--accent);letter-spacing:.2em;font-weight:400}
+.row .sub{font-size:12px;color:var(--muted);display:block}
+.row .min{font-family:var(--serif);font-size:28px;line-height:1;text-align:right;font-variant-numeric:tabular-nums}
+.row .min span{font-size:12px;font-family:var(--sans);color:var(--muted);margin-left:2px}
+.row.best .min{color:var(--accent)}
+.row.hyp{background:linear-gradient(90deg,var(--accent-soft),transparent 75%);padding-top:8px;padding-bottom:10px}
+.row.hyp .min{font-size:24px}
+.pair{border-bottom:1px solid var(--ink)}.pair .row{border-bottom:1px dashed var(--hair)}.pair .row:last-child{border-bottom:0}
+.rows{border-top:1px solid var(--ink)}
+.tagp{font-size:12.5px;color:var(--accent);letter-spacing:.12em;border-left:2px solid var(--accent);padding-left:7px}
+.gain{font-style:normal;color:var(--accent);font-weight:500}.same{color:var(--muted)}
+.concl{border:1px solid var(--accent);padding:16px 18px;background:linear-gradient(180deg,var(--accent-soft),#fff 60%)}
+.concl .big{font-family:var(--serif);font-size:18px;line-height:1.6;margin:6px 0 8px}.concl b{color:var(--accent);font-size:1.15em}
+.concl ul{margin:4px 0 8px;padding-left:18px;font-size:14px}.concl .cheer{font-weight:500}
+.island{display:block;text-align:center;text-decoration:none;margin:12px 0 6px}
+.polbtn{width:100%;text-align:center;font-size:15px;letter-spacing:.08em}
+details.pol{border-bottom:1px solid var(--hair)}details.pol summary{cursor:pointer;padding:9px 2px;font-size:14.5px;list-style:none;display:flex;gap:8px;align-items:center}
+details.pol summary::-webkit-details-marker{display:none}details.pol summary:before{content:"▸";color:var(--muted);font-size:12px;transition:transform .15s}
+details.pol[open] summary:before{transform:rotate(90deg)}details.pol[open] summary{color:var(--accent)}
+.pol-body{padding:0 2px 12px 18px;font-size:13.5px}.pol-body p{margin:4px 0}.pol-body .src{font-size:12px;color:var(--muted)}
+.k.sim{font-size:10px;color:var(--accent);border:1px solid currentColor;padding:0 4px;letter-spacing:.06em}.k.mapk{font-size:10px;color:var(--project);border:1px solid currentColor;padding:0 4px}
+.simline{color:var(--accent)!important}
+.sheet .box{position:relative}.sheet-x{position:absolute;top:10px;right:12px;border:0;background:none;font-size:22px;cursor:pointer;color:var(--muted)}
+.fine{font-size:12px;color:var(--muted);line-height:1.6;margin:0}
+
+/* ---------- 政見地圖 ---------- */
+.switch{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:14px}
+.switch input{appearance:none;width:30px;height:16px;border:1px solid var(--ink2);border-radius:999px;position:relative;flex:none;margin-top:4px;cursor:pointer;background:#fff}
+.switch input:before{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:var(--ink2);top:2px;left:2px;transition:left .15s}
+.switch input:checked{background:var(--accent);border-color:var(--accent)}
+.switch input:checked:before{left:16px;background:#fff}
+.switch small{display:block;color:var(--muted);font-size:12px}
+.legend{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink2)}
+.legend span{display:flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:28px;height:0;border-top:3px solid}
+.legend i.p{border-color:var(--policy);border-top-style:dotted}
+.legend i.j{border-color:var(--project);border-top-style:dashed}
+.legend i.e{border-color:var(--exist)}
+.plist{list-style:none;margin:0;padding:0;font-size:13px}
+.plist li{border-bottom:1px solid var(--hair2)}
+.plist button{width:100%;text-align:left;background:none;border:0;padding:6px 0;cursor:pointer;display:flex;gap:8px;align-items:baseline}
+.plist button:hover{color:var(--accent)}
+.k{font-size:10.5px;letter-spacing:.14em;white-space:nowrap}
+.k.policy{color:var(--policy)}.k.project{color:var(--project)}.k.exist{color:var(--muted)}.k.news{color:var(--danger)}.k.sim{color:var(--muted)}
+
+/* ---------- 模擬中 ---------- */
+.legs{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
+.legs li{display:grid;grid-template-columns:26px 1fr auto;gap:10px;padding:9px 2px;border-bottom:1px solid var(--hair);font-size:13.5px}
+.legs li.now{background:var(--accent-soft)}
+.legs li.done{color:var(--muted)}
+.legs .t{font-family:var(--serif);font-variant-numeric:tabular-nums}
+.choices{display:flex;flex-direction:column;gap:6px}
+.btn{border:1px solid var(--ink);background:#fff;padding:10px 14px;cursor:pointer;font-size:14px;text-align:left}
+.btn:hover{background:var(--ink);color:#fff}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.primary:hover{background:var(--accent);border-color:var(--accent)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.log{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.log div{padding-left:10px;border-left:2px solid var(--hair)}
+.log div.ev{border-color:var(--danger)}.log div.policy{border-color:var(--policy)}.log div.project{border-color:var(--project)}
+.result .big{font-family:var(--serif);font-size:30px;line-height:1.3}
+.result.late .big{color:var(--danger)}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--hair);margin-top:10px}
+.kv div{padding:8px 0}.kv div+div{padding-left:12px;border-left:1px solid var(--hair)}
+.kv dt{font-size:11px;letter-spacing:.2em;color:var(--muted)}.kv dd{margin:0;font-family:var(--serif);font-size:18px;font-variant-numeric:tabular-nums}
+
+/* ---------- 地圖上的元素 ---------- */
+.hud{position:absolute;z-index:1100;top:12px;left:12px;right:58px;background:rgba(255,255,255,.96);border:1px solid var(--hair);padding:6px 14px;display:flex;flex-wrap:wrap;gap:2px 16px;align-items:baseline;font-size:13px}
+.hud .clock{font-family:var(--serif);font-size:24px;font-variant-numeric:tabular-nums}
+.map-note{position:absolute;z-index:1100;left:12px;bottom:22px;max-width:calc(100% - 24px);background:rgba(255,255,255,.96);border:1px solid var(--hair);color:var(--muted);padding:4px 10px;font-size:11.5px;line-height:1.5}
+.tok{position:relative;width:40px;height:40px}
+.tok .face{position:absolute;left:4px;top:0;font-size:24px}
+.tok .veh{position:absolute;right:-2px;bottom:-2px;font-size:16px;background:#fff;border:1px solid var(--ink);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}
+.tok.bounce .face{animation:hop .5s ease-in-out infinite alternate}
+@keyframes hop{to{transform:translateY(-4px)}}
+.pin{width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--ink);box-shadow:0 0 0 4px rgba(255,255,255,.9)}
+.pin.d{background:var(--accent);border-color:var(--accent)}
+.pin-lbl{font-family:var(--serif);font-size:13px;white-space:nowrap;background:#fff;border:1px solid var(--ink);padding:0 6px;transform:translate(14px,-26px);display:inline-block}
+.stn{width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid var(--mrt)}
+.stn.tra{border-color:var(--rail);border-radius:1px}
+.stn-label{font-size:10.5px;color:var(--ink2);white-space:nowrap;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff;transform:translate(8px,-7px)}
+.pol-label{font-size:11px;white-space:nowrap;background:#fff;padding:0 5px;border:1px solid currentColor;transform:translate(-50%,-50%);display:inline-block;letter-spacing:.06em}
+.pol-label.policy{color:var(--policy)}.pol-label.project{color:var(--project)}.pol-label.exist{color:var(--muted)}
+.bub{position:relative;width:min(280px,64vw);background:#fff;color:var(--ink);padding:12px 14px;font-size:13px;line-height:1.6;border:1px solid var(--ink);box-shadow:6px 6px 0 rgba(0,0,0,.06);transform:translate(-50%,calc(-100% - 16px))}
+.bub:after{content:"";position:absolute;left:calc(50% - var(--dx,0px));bottom:-8px;margin-left:-7px;width:13px;height:13px;background:#fff;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);transform:rotate(45deg)}
+.bub.below{transform:translate(-50%,18px)}
+.bub.below:after{top:-8px;bottom:auto;transform:rotate(-135deg)}
+.bub.policy{border-color:var(--policy)}.bub.policy:after{border-color:var(--policy)}
+.bub.project{border-color:var(--project)}.bub.project:after{border-color:var(--project)}
+.bub h4{margin:0 0 4px;font-family:var(--serif);font-size:15px;font-weight:600;line-height:1.4}
+.bub p{margin:0 0 6px}
+.bub .src{font-size:11.5px;color:var(--muted)}
+.bub .x{position:absolute;right:8px;top:4px;border:0;background:none;font-size:16px;cursor:pointer;color:var(--muted)}
+.bub .choices{margin-top:8px}
+.bub .btn{font-size:13px;padding:7px 10px}
+.leaflet-marker-icon.bub-host{pointer-events:auto}
+#svgmap{position:absolute;inset:0;width:100%;height:100%}
+#svgOverlay{position:absolute;inset:0;pointer-events:none}
+#svgOverlay>*{position:absolute;pointer-events:auto}
+
+/* ---------- 說明 ---------- */
+.sheet{position:fixed;inset:0;z-index:3000;background:rgba(255,255,255,.82);display:grid;place-items:center;padding:16px}
+.sheet .box{background:#fff;border:1px solid var(--ink);max-width:720px;width:100%;max-height:calc(100% - 32px);overflow:auto;padding:22px 24px}
+.sheet h2{font-family:var(--serif);font-weight:600;margin:0 0 8px;letter-spacing:.1em}
+.sheet h3{margin:18px 0 6px;font-size:12px;letter-spacing:.24em;color:var(--muted);font-weight:500}
+.sheet ul{padding-left:18px;margin:4px 0}
+.sheet li{margin:3px 0;font-size:13.5px}
+.status-grid{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+@media (prefers-reduced-motion:reduce){.tok.bounce .face{animation:none}.switch input:before{transition:none}}
+@media (max-width:600px){.mapbox.running .map-note{display:none!important}.top h1{font-size:24px}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div><h1>台中通勤大作戰<span class="en">Taichung Commute</span></h1></div>
+    <nav><button class="linkbtn" data-act="policyList">政見清單</button><button class="linkbtn" data-act="fitPolicy">政見地圖</button><button class="linkbtn" data-act="info">資料說明</button></nav>
+  </header>
+  <main class="stage">
+    <section class="panel" id="panel" aria-live="polite"></section>
+    <section class="mapbox" aria-label="通勤地圖">
+      <div id="map"></div>
+      <div class="hud" id="hud" hidden></div>
+      <div class="map-note" id="mapNote" hidden></div>
+    </section>
+  </main>
+  <div class="sheet" id="sheet" hidden><div class="box" id="sheetBox"></div></div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+ * 台中通勤大作戰 v5
+ *  1. 工具、LeafletLoader（cdnjs → jsDelivr → unpkg）、Routing（OSRM）
+ *  2. 資料：真實地點、綠線 18 站、台鐵站、新聞、政見與建設
+ *  3. 政見地圖（示意線）與地址定位（Photon / Nominatim）
+ *  4. Planner：開車、機車、大眾運輸（含假設藍線）、走路、腳踏車
+ *  5. MapView：國土測繪中心電子地圖 → OSM → 裝飾底圖；SVG 示意圖備援
+ *  6. Sim：小人通勤、意外事件、政見對話框
+ *  7. UI 與輸入
+ * ===================================================================== */
+/* ============================ 1. 工具 ============================ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad2 = n => String(n).padStart(2, '0');
+const fmt = m => { m = Math.round(m); const d = Math.floor(m / 1440); m -= d * 1440; if (m < 0) m += 1440; return `${Math.floor(m / 60)}:${pad2(m % 60)}`; };
+const money = n => `$${Math.round(n).toLocaleString('zh-TW')}`;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const randInt = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function km(a, b) {
+  const R = 6371, r = Math.PI / 180, dLat = (b.lat - a.lat) * r, dLng = (b.lng - a.lng) * r;
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+const lineKm = pts => pts.reduce((s, p, i) => i ? s + km(pts[i - 1], p) : 0, 0);
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+/* ============================ 3. LeafletLoader ============================ */
+const LeafletLoader = (() => {
+  const SOURCES = ['https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js',
+                   'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js',
+                   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'];
+  const st = { status: 'pending', src: null, failed: [] };
+  let promise = null;
+  const tryOne = src => new Promise(resolve => {
+    const el = document.createElement('script');
+    const done = ok => { clearTimeout(t); el.onload = el.onerror = null; resolve(ok); };
+    const t = setTimeout(() => done(false), 8000);
+    el.onload = () => done(!!(window.L && window.L.map));
+    el.onerror = () => done(false);
+    el.src = src; el.async = true; el.crossOrigin = 'anonymous';
+    document.head.appendChild(el);
+  });
+  function load() {
+    if (promise) return promise;
+    promise = (async () => {
+      if (window.L && window.L.map) { st.status = 'ok'; st.src = '已存在'; return true; }
+      for (const src of SOURCES) {
+        if (await tryOne(src)) { st.status = 'ok'; st.src = src; return true; }
+        st.failed.push(src.split('/')[2]);
+      }
+      st.status = 'failed'; return false;
+    })();
+    return promise;
+  }
+  return { load, state: st };
+})();
+
+/* ============================ 4. Routing ============================ */
+/** 可連網時用 OSRM 取得實際道路／步行路徑；失敗時回傳 null，由 Planner 改用估算並標示 */
+const Routing = (() => {
+  const URL = { car: 'https://routing.openstreetmap.de/routed-car/route/v1/driving/', foot: 'https://routing.openstreetmap.de/routed-foot/route/v1/driving/',
+                bike: 'https://routing.openstreetmap.de/routed-bike/route/v1/driving/' };
+  const cache = new Map();
+  const st = { status: 'idle', ok: 0, failed: 0, msg: '' };
+  const key = (p, a, b) => `${p}:${a.lat.toFixed(5)},${a.lng.toFixed(5)}>${b.lat.toFixed(5)},${b.lng.toFixed(5)}`;
+  async function get(profile, a, b) {
+    const k = key(profile, a, b);
+    if (cache.has(k)) return cache.get(k);
+    let res = null;
+    try {
+      const ac = new AbortController(); const t = setTimeout(() => ac.abort(), 6000);
+      const r = await fetch(`${URL[profile]}${a.lng},${a.lat};${b.lng},${b.lat}?overview=full&geometries=geojson`, { signal: ac.signal });
+      clearTimeout(t);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const j = await r.json(); const rt = j.routes && j.routes[0];
+      if (!rt) throw new Error(j.code || '無路徑');
+      res = { km: rt.distance / 1000, pts: rt.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) };
+      st.ok++; st.status = 'ok';
+    } catch (e) {
+      st.failed++; if (st.status !== 'ok') st.status = 'failed';
+      st.msg = e.name === 'AbortError' ? '連線逾時' : '無法連線（離線，或預覽環境禁止連外）';
+    }
+    cache.set(k, res);
+    return res;
+  }
+  return { get, state: st, peek: (p, a, b) => cache.get(key(p, a, b)) };
+})();
+
+
+/* ============================ 2. 資料 ============================ */
+/** 地點：座標與地址皆已查證（2026-10-24），來源見各筆 src */
+const WIKI = 'Wikipedia';
+const PLACES = [
+  { id: 'tc_stn',  name: '臺中車站', addr: '臺中市中區臺灣大道一段1號', lat: 24.1370, lng: 120.6868, kind: '台鐵', src: WIKI },
+  { id: 'shalu',   name: '沙鹿車站', addr: '臺中市沙鹿區（台鐵海線）', lat: 24.237000, lng: 120.557583, kind: '台鐵', src: WIKI },
+  { id: 'nmns',    name: '國立自然科學博物館', addr: '臺中市北區館前路1號', lat: 24.15724, lng: 120.66606, kind: '地標', src: '臺中觀光旅遊網' },
+  { id: 'ntt',     name: '臺中國家歌劇院', addr: '臺中市西屯區惠來路二段101號', lat: 24.16278, lng: 120.64056, kind: '地標', src: WIKI },
+  { id: 'fengjia', name: '逢甲夜市', addr: '臺中市西屯區文華路、逢甲路一帶', lat: 24.178833, lng: 120.646444, kind: '地標', src: WIKI },
+  { id: 'thu',     name: '東海大學', addr: '臺中市西屯區', lat: 24.1779605, lng: 120.6036615, kind: '學校', src: WIKI },
+  { id: 'hsr',     name: '高鐵臺中站', addr: '臺中市烏日區', lat: 24.1117, lng: 120.6161, kind: '高鐵', src: WIKI },
+];
+/** 臺中捷運綠線 18 站（依序）。座標取自各站 Wikipedia 條目（2026-10-24 查證） */
+const MRT = [
+  ['103a', '北屯總站', 24.18528, 120.70944], ['103', '舊社', 24.18222, 120.70639], ['104', '松竹', 24.180139, 120.701861],
+  ['105', '四維國小', 24.1711, 120.6933], ['106', '文心崇德', 24.17222194, 120.685], ['107', '文心中清', 24.17333306, 120.67055611],
+  ['108', '文華高中', 24.17138889, 120.66055611], ['109', '文心櫻花', 24.1675, 120.65388889], ['110', '市政府', 24.16222194, 120.64944389],
+  ['111', '水安宮', 24.1532, 120.6468], ['112', '文心森林公園', 24.1455, 120.6468], ['113', '南屯', 24.14027806, 120.64666694],
+  ['114', '豐樂公園', 24.1326, 120.6468], ['115', '大慶', 24.118833, 120.647833], ['116', '九張犁', 24.1145, 120.6402],
+  ['117', '九德', 24.111, 120.6345], ['118', '烏日', 24.108917, 120.622333], ['119', '高鐵臺中站', 24.1117, 120.6161],
+].map(([code, name, lat, lng], i) => ({ id: `m${i}`, idx: i, code, name: `捷運${name}站`, short: name, lat, lng }));
+/** 台鐵：本關使用的三站。大慶站與綠線大慶站共站（可轉乘） */
+const TRA = [
+  { id: 't_shalu', name: '台鐵沙鹿站', short: '沙鹿', lat: 24.237000, lng: 120.557583 },
+  { id: 't_daqing', name: '台鐵大慶站', short: '大慶', lat: 24.118833, lng: 120.647833 },
+  { id: 't_tc', name: '台鐵臺中站', short: '臺中', lat: 24.1370, lng: 120.6868 },
+];
+// 台鐵行車時間（模擬）：沙鹿經追分、成功、烏日到大慶，再到臺中
+const TRA_RIDE = { 't_shalu|t_daqing': 32, 't_daqing|t_tc': 6, 't_shalu|t_tc': 38 };
+const TRA_FARE = { 't_shalu|t_daqing': 40, 't_daqing|t_tc': 15, 't_shalu|t_tc': 45 };
+
+/** 可選的地點清單（地標＋綠線各站） */
+const PICKABLE = PLACES.concat(MRT.map(m => ({ id: m.id, name: m.name, addr: `臺中捷運綠線 ${m.code}`, lat: m.lat, lng: m.lng, kind: '捷運綠線', src: WIKI })));
+
+/** 新聞：事件的真實依據（事件本身是遊戲模擬） */
+const NEWS = {
+  ghost: [{ pub: '自由時報', date: '2026-09-30', title: '台中公車脫班嚴重資訊不精準，連官版 App 都不準', url: 'https://news.ltn.com.tw/news/life/breakingnews/5590643' }],
+  mrt: [{ pub: '中央社', date: '2026-06-03', title: '台中捷運不到半年故障 4 次，6/3 早上停駛約 21 分', url: 'https://www.cna.com.tw/news/aloc/202606030215.aspx' },
+        { pub: '中央社', date: '2026-06-04', title: '中捷號誌異常，列車改手動駕駛，影響營運 42 分', url: 'https://www.cna.com.tw/news/ahel/202606040378.aspx' }],
+  drug: [{ pub: '自由時報', date: '2026-07-03', title: '毒駕男臺灣大道二段連撞 3 車，一度回堵', url: 'https://news.ltn.com.tw/news/society/breakingnews/5492919' },
+         { pub: '中時新聞網', date: '2026-09-19', title: '北區崇德路酒駕又毒駕，撞 28 輛汽機車', url: 'https://www.chinatimes.com/realtimenews/20260919001445-260402' }],
+};
+/** 政見（何欣純，附日期與來源）與建設計畫（附狀態）。內容為報導重點轉述，政見尚未實施。 */
+const NOTES = {
+  busReform: { type: 'policy', title: '何欣純政見：公車改革', date: '2026-10-19',
+    text: '以轉運中心與臺中車站為核心，重整幹線、環狀與區域接駁路網；用刷卡資料找出尖峰擁擠路線，增加運能。',
+    src: [['中央社', 'https://www.cna.com.tw/news/aipl/202610190150.aspx'], ['鏡週刊', 'https://www.mirrormedia.mg/story/20261019mkt002']] },
+  busApp: { type: 'policy', title: '何欣純政見：班次取消自動替代', date: '2026-10-19',
+    text: '升級「台中Go」App，班次取消時自動提供替代路線與轉乘；稽核脫班與「幽靈車」。',
+    src: [['鏡週刊', 'https://www.mirrormedia.mg/story/20261019mkt002']] },
+  rideCheck: { type: 'policy', title: '何欣純政見：搭乘體檢', date: '2026-10-19',
+    text: '上任後在通勤尖峰不預告搭乘捷運與公車，從乘客角度檢視服務。',
+    src: [['中央社', 'https://www.cna.com.tw/news/aipl/202610190150.aspx']] },
+  haixian: { type: 'policy', title: '何欣純政見：4321 海線大進擊', date: '2026-09-10',
+    text: '加速捷運藍線、橘線延伸清水、海線鐵路雙軌高架化（報導提到 8 年內）、港區舊貨運軌道活化。',
+    src: [['自由時報', 'https://news.ltn.com.tw/news/politics/breakingnews/5569059'], ['聯合報', 'https://udn.com/news/story/124652/9746591']] },
+  roads: { type: 'policy', title: '何欣純政見：打通海線道路', date: '2026-09-10',
+    text: '甲埔大道延伸大安、國道 4 號延伸臺中港、生活圈 4 號道路。',
+    src: [['自由時報', 'https://news.ltn.com.tw/news/politics/breakingnews/5569059']] },
+  blue: { type: 'project', title: '捷運藍線：施工中', date: '',
+    text: '臺中港—東區、沿臺灣大道，規劃含沙鹿車站站。BC11 高架段 2026-08-12 動工，尚未通車。',
+    src: [['遠見', 'https://city.gvm.com.tw/article/132248']] },
+  doubleTrack: { type: 'project', title: '臺鐵海線雙軌化：綜合規劃中', date: '',
+    text: '談文—追分約 35 km，可行性研究 2024-01-29 經行政院核定，尚未施工。',
+    src: [['交通部鐵道局', 'https://www.rb.gov.tw/zh-TW/main/main_28/20250505_152320/20251104_133924/20251119_125916/']] },
+};
+/** 路過這些地點附近時，對話框會出現在地圖上 */
+const ANCHORS = [
+  { at: { lat: 24.237000, lng: 120.557583 }, notes: ['blue', 'doubleTrack', 'haixian'] },
+  { at: { lat: 24.1370, lng: 120.6868 }, notes: ['busReform'] },
+  { at: { lat: 24.16222194, lng: 120.64944389 }, notes: ['rideCheck'], mode: 'mrt' },
+];
+
+/* ---------- 尖峰型態（模擬）：參考一般都市通勤，非 Google 即時路況 ---------- */
+const CONG_WEEKDAY = [0.95, 0.95, 0.95, 0.95, 0.95, 1.0, 1.1, 1.55, 1.75, 1.35, 1.15, 1.2, 1.3, 1.2, 1.15, 1.2, 1.35, 1.75, 1.85, 1.45, 1.2, 1.1, 1.0, 1.0];
+const CONG_WEEKEND = [0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.3, 1.3, 1.35, 1.35, 1.35, 1.3, 1.2, 1.15, 1.1, 1.0, 1.0];
+const isWeekend = dateStr => { const d = new Date(dateStr + 'T00:00:00'); return d.getDay() === 0 || d.getDay() === 6; };
+function congestion(dateStr, minute) {
+  const h = ((Math.floor(minute / 60) % 24) + 24) % 24;
+  return (isWeekend(dateStr) ? CONG_WEEKEND : CONG_WEEKDAY)[h];
+}
+const isPeak = (dateStr, minute) => !isWeekend(dateStr) && ((minute >= 420 && minute < 540) || (minute >= 1020 && minute < 1140));
+const isNight = minute => { const h = Math.floor(minute / 60) % 24; return h >= 22 || h < 6; };
+/** 班距（模擬，未取得官方班距） */
+const headway = (kind, dateStr, minute) => {
+  const peak = isPeak(dateStr, minute), night = isNight(minute);
+  if (kind === 'bus') return night ? 30 : peak ? 12 : 18;
+  if (kind === 'mrt') return night ? 12 : peak ? 8 : 10;
+  return night ? 45 : peak ? 20 : 30; // tra
+};
+/** 綠線票價：起價 $20（2 km 內），之後每 2 km 加 $5，上限 $50（Wikipedia 引 2020 年資料，可能已調整） */
+const mrtFare = k => Math.min(50, 20 + 5 * Math.ceil(Math.max(0, k - 2) / 2));
+
+
+
+/* ---------- 何欣純交通政見地圖（示意線） ----------
+ * 端點座標皆為已查證的地點（Wikipedia 條目，2026-10-24）。線條只是把這些地點連起來，
+ * 用來表示「大概從哪裡到哪裡」，不是實際規劃線形、站位或路線。 */
+const PT = {
+  port:     { lat: 24.294528, lng: 120.490917, name: '臺中港' },
+  shalu:    { lat: 24.237000, lng: 120.557583, name: '沙鹿車站' },
+  thu:      { lat: 24.1779605, lng: 120.6036615, name: '東海大學' },
+  cityhall: { lat: 24.16222194, lng: 120.64944389, name: '市政府站一帶' },
+  tc:       { lat: 24.1370, lng: 120.6868, name: '臺中車站' },
+  airport:  { lat: 24.26472, lng: 120.62056, name: '臺中機場' },
+  qsD:      { lat: 24.28750, lng: 120.57639, name: '清水區' },
+  qsStn:    { lat: 24.263639, lng: 120.569028, name: '清水車站' },
+  dajia:    { lat: 24.344472, lng: 120.626917, name: '大甲車站' },
+  longjing: { lat: 24.197556, lng: 120.543333, name: '龍井車站' },
+  dadu:     { lat: 24.154, lng: 120.542389, name: '大肚車站' },
+  zhuifen:  { lat: 24.120278, lng: 120.570806, name: '追分車站' },
+  daan:     { lat: 24.365237, lng: 120.590202, name: '大安區' },
+  waipu:    { lat: 24.329861, lng: 120.654111, name: '外埔區' },
+  wuri:     { lat: 24.108917, lng: 120.622333, name: '烏日' },
+  daqing:   { lat: 24.118833, lng: 120.647833, name: '大慶車站' },
+};
+const SRC = {
+  p4321: ['自由時報 2026-09-10（4321 海線大進擊）', 'https://news.ltn.com.tw/news/politics/breakingnews/5569059'],
+  p4321b: ['聯合報 2026-09-10', 'https://udn.com/news/story/124652/9746591'],
+  blue: ['遠見：藍線 BC11 動工', 'https://city.gvm.com.tw/article/132248'],
+  orange: ['CTWANT：橘線原則同意', 'https://www.ctwant.com/article/494916/'],
+  rb: ['交通部鐵道局：海線雙軌化綜合規劃', 'https://www.rb.gov.tw/zh-TW/main/main_28/20250505_152320/20251104_133924/20251119_125916/'],
+  fwy4: ['Wikipedia：國道 4 號', 'https://en.wikipedia.org/wiki/National_Freeway_4'],
+  jiapu: ['自由時報 2026-04-01：甲埔大道通車', 'https://news.ltn.com.tw/news/life/breakingnews/5390268'],
+  capsule: ['聯合報 2026-06-20：釜山膠囊列車活化台中港舊鐵道', 'https://udn.com/news/story/7326/9578009'],
+  airportBig: ['自由時報 2026-10-16：3 個第一、1 個大', 'https://news.ltn.com.tw/news/Taichung/breakingnews/5608967'],
+  setn0805: ['三立 2026-08-05：捷運路網效率第一', 'https://www.setn.com/news/1884409'],
+  cna0805: ['中央社 2026-08-05：治理願景', 'https://cna.com.tw/news/aipl/202608050221.aspx'],
+  now0805: ['NOWnews 2026-08-05：西屯五大新政', 'https://www.nownews.com/news/6863282'],
+  udn0402: ['聯合報 2026-04-02：專訪', 'https://udn.com/news/story/124652/9417615'],
+  cna1011: ['中央社 2026-10-11：北屯交通', 'https://cna.com.tw/news/aipl/202610110120.aspx'],
+  mm1003: ['鏡週刊 2026-10-03：專訪', 'https://www.mirrormedia.mg/story/20260924inv001'],
+  cna1019: ['中央社 2026-10-19：公車改革', 'https://www.cna.com.tw/news/aipl/202610190150.aspx'],
+  mm1019: ['鏡週刊 2026-10-19：公車', 'https://www.mirrormedia.mg/story/20261019mkt002'],
+  nt0607: ['新頭殼 2026-06-07：捷運體檢', 'https://newtalk.tw/news/view/2026-06-07/1039796'],
+  island: ['台中政策島（支持者整理的政見地圖）', 'https://taichung-island.netlify.app/'],
+};
+/** kind：policy＝何欣純政見（尚未實施）、project＝建設計畫（附進度）、exist＝既有道路 */
+const POLICY_MAP = [
+  { id: 'blue', kind: 'project', title: '捷運藍線', short: '藍線・施工中', pts: ['port', 'shalu', 'thu', 'cityhall', 'tc'],
+    status: '施工中：BC11 高架段 2026-08-12 動工；全線預計 2034 年完工（不動產網站整理，非官方）。',
+    policy: '何欣純政見：加速藍線完工通車（2026-09-10）。',
+    note: '臺中港至東區、沿臺灣大道。這條線依幾個已知地點連成，只是示意。', src: ['blue', 'p4321'], scenario: true },
+  { id: 'orange', kind: 'project', title: '捷運橘線（機場捷運）', short: '橘線・規劃中', pts: ['airport', 'tc'],
+    status: '可行性研究獲行政院原則同意（2026-08-18），尚待綜合規劃核定。',
+    note: '臺中機場—臺中車站—霧峰；這裡只畫到臺中車站，示意。', src: ['orange'] },
+  { id: 'orangeExt', kind: 'policy', title: '捷運橘線延伸到台鐵清水站', short: '橘線延伸清水站', pts: ['airport', 'qsStn'],
+    policy: '何欣純政見：爭取橘線延伸清水，以雙捷運加鐵路網串起海線各區與景點。',
+    note: '由臺中機場連到台鐵清水車站，示意；現行橘線規劃不含清水。', src: ['p4321', 'orange'] },
+  { id: 'coastRail', kind: 'policy', title: '海線鐵路雙軌高架化', short: '海線雙軌高架化', pts: ['dajia', 'qsStn', 'shalu', 'longjing', 'dadu', 'zhuifen'],
+    policy: '何欣純「4321」：報導提到 8 年內完成。',
+    status: '臺鐵海線雙軌化（談文—追分）目前為綜合規劃階段，尚未施工。',
+    note: '沿既有海線車站連線，示意。', src: ['p4321', 'rb'] },
+  { id: 'mtnRail', kind: 'policy', title: '山線鐵路烏日—大慶段高架化', short: '山線烏日—大慶高架', pts: ['wuri', 'daqing'],
+    policy: '何欣純政見：推動鐵路高架雙軌，含山線烏日—大慶段高架化與台中山海環線。', note: '烏日到大慶之間的位置示意。', src: ['udn0402', 'setn0805'] },
+  { id: 'fwy4', kind: 'policy', title: '國道 4 號延伸臺中港', short: '國4延伸臺中港', pts: ['qsD', 'port'],
+    policy: '何欣純「4321」（2026-09-10）。', status: '國道 4 號目前西端在清水（接台 17 線）。',
+    note: '由清水區連到臺中港，示意。', src: ['p4321', 'fwy4'] },
+  { id: 'jiapuNow', kind: 'exist', title: '甲埔大道（已通車）', short: '甲埔大道', pts: ['waipu', 'dajia'],
+    status: '2026-04-09 通車，約 2.75 km，紓解甲后路、甲東路車流。', note: '外埔—大甲之間的位置示意。', src: ['jiapu'] },
+  { id: 'jiapuExt', kind: 'policy', title: '甲埔大道延伸大安', short: '甲埔大道延伸大安', pts: ['dajia', 'daan'],
+    policy: '何欣純「4321」：延伸到大安，串接國道 3 號與台 61 線。', note: '示意。', src: ['p4321', 'p4321b'] },
+  { id: 'lc4', kind: 'policy', title: '生活圈 4 號道路', short: '生活圈4號', pts: ['longjing', 'dadu', 'wuri'],
+    policy: '何欣純「4321」：加速闢建，改善大肚、龍井、烏日的聯繫。', note: '依政見提到的地區連線，示意。', src: ['p4321'] },
+  { id: 'portRail', kind: 'policy', title: '台中港舊鐵道：空中膠囊列車', short: '港區膠囊列車', pts: ['port'],
+    policy: '何欣純政見：參考釜山天空膠囊列車，把台中港舊鐵道活化為觀光鐵道。', note: '只標示位置。', src: ['capsule', 'p4321'] },
+  { id: 'airportBig', kind: 'policy', title: '台中大機場計畫', short: '台中大機場', pts: ['airport'],
+    policy: '何欣純政見：擴建停機坪、興建第三航廈，增設停車、物流中心與商業區。', note: '只標示位置。', src: ['airportBig'] },
+];
+const KIND_LABEL = { policy: '政見・尚未實施', project: '建設計畫', exist: '既有道路' };
+/** 何欣純交通政見清單（重複的已合併；文字為政見與報導重點）。map＝地圖上的示意線，sim＝遊戲「政見版」怎麼算 */
+const POLICY_LIST = [
+  { cat: '捷運與鐵路', items: [
+    { title: '加速捷運藍線完工', text: '全面檢視藍線工程進度，加速實質動工與通車。藍線由臺中港沿臺灣大道到東區。', map: 'blue',
+      sim: '政見版：藍線通車（臺中港、沙鹿車站、東海大學、市政府站一帶、臺中車站；時速 35 km、班距 6 分）。', src: ['setn0805', 'p4321'] },
+    { title: '捷運橘線延伸到台鐵清水站', text: '加速機場捷運橘線規劃，並爭取延伸清水，以雙捷運加鐵路網串起海線各區與景點。', map: 'orangeExt',
+      sim: '政見版：橘線通車並延伸（清水車站、臺中機場、臺中車站；時速 35 km、班距 8 分）。', src: ['now0805', 'p4321'] },
+    { title: '推動鐵路高架雙軌', text: '加速海線鐵路高架雙軌化、山線鐵路烏日—大慶段高架化，以及台中山海環線，改善平面鐵路造成的交通阻隔，帶動沿線都市更新與區域均衡發展。', map: 'coastRail',
+      sim: '政見版：海線台鐵班距減半。', src: ['p4321', 'udn0402', 'setn0805', 'rb'] },
+    { title: '屯區環狀線', text: '與藍線、橘線、山海環線同步推動，形成全市完整捷運路網。', src: ['setn0805'] },
+    { title: '捷運綠線延伸大坑', text: '加速綠線延伸到大坑。', src: ['cna1011'] },
+    { title: '捷運路網效率第一', text: '「三個第一」之一：整合捷運、鐵路、公車與快速道路，與中央合作加速重大交通建設。', src: ['cna0805', 'airportBig'] },
+    { title: '捷運系統性體檢', text: '針對中捷事故，要求中央與地方進行系統性體檢。', sim: '政見版：捷運故障事件機率降低。', src: ['nt0607'] },
+  ] },
+  { cat: '公車與轉運', items: [
+    { title: '建構 4+1 轉運中心', text: '在既有轉運中心規劃基礎上，增設海區轉運中心，串聯台鐵、高鐵、環線捷運、國道客運、市區公車、多元計程車與公共自行車系統，提升轉乘便利性。',
+      sim: '政見版：公共自行車借還車時間縮短。', src: [] },
+    { title: '公車改革：重整路網、增加運能', text: '以轉運中心與臺中車站為核心重整幹線、環狀與區域接駁路網；整合客運、中小型巴士、接泊車與幸福小黃；市府加碼補助，改善班次不足與司機短缺。',
+      sim: '政見版：公車班距縮短三分之一。', src: ['cna1019', 'mm1003', 'udn0402'] },
+    { title: '公車 App 準時、班次取消自動替代', text: '升級 App，到站資訊要準時；班次取消時自動提供替代路線，並稽核脫班與幽靈車。',
+      sim: '政見版：幽靈公車事件機率降低。', src: ['mm1019', 'mm1003'] },
+    { title: '上任搭乘體檢', text: '在通勤尖峰不預告搭乘捷運與公車，從乘客角度檢視服務。', src: ['cna1019'] },
+  ] },
+  { cat: '道路與停車', items: [
+    { title: '改善道路瓶頸路段', text: '爭取中央經費，加速道路開闢與瓶頸路段改善，推動危險路口檢討、道路鋪面改善與交通動線優化，提升用路安全與道路品質。',
+      sim: '政見版：開車、騎車的塞車延誤減少 30%；走路、騎腳踏車因路口改善快 5%。', src: ['airportBig'] },
+    { title: '智慧交通管控', text: '在台 74 線下匝道後的主要幹道設置智慧號誌，與交通部系統銜接，快速道路回堵時啟動分流。', src: ['mm1003', 'cna1011'] },
+    { title: '第二環快速聯絡道路', text: '改善第二環快速聯絡道路，紓解台 74 線壅塞。', src: ['cna1011'] },
+    { title: '中科、水湳周邊路網串聯', text: '改善中科、水湳與周邊地區的道路連結。', src: ['now0805'] },
+    { title: '解決停車與執法民怨', text: '盤點公有土地與閒置空間，增闢停車場與臨時停車空間（含地下、立體停車場），公有停車場費率合理化；制定《台中市騎樓停車管理自治條例》，兼顧行人通行與居民需求，化解停車與科技執法的民怨。',
+      sim: '政見版：汽車找車位時間減半、停車費 $40 → $30；機車停車 4 → 2 分。', src: ['mm1003', 'udn0402', 'now0805'] },
+  ] },
+  { cat: '海線與機場', items: [
+    { title: '國道 4 號延伸臺中港', text: '「4321 海線大進擊」之一。', map: 'fwy4', src: ['p4321'] },
+    { title: '甲埔大道延伸大安', text: '延伸到大安，串接國道 3 號與台 61 線。', map: 'jiapuExt', src: ['p4321', 'p4321b'] },
+    { title: '生活圈 4 號道路', text: '加速闢建，改善大肚、龍井、烏日的聯繫。', map: 'lc4', src: ['p4321'] },
+    { title: '台中港舊鐵道：空中膠囊列車', text: '參考南韓釜山天空膠囊列車，把台中港舊鐵道活化為觀光鐵道。', map: 'portRail', src: ['capsule'] },
+    { title: '台中大機場計畫', text: '台中機場已有 30 多條國際航線但腹地不足：擴建停機坪、興建第三航廈，增設停車、物流中心與商業區。', map: 'airportBig', src: ['airportBig'] },
+  ] },
+];
+/** 政見版的假設（遊戲設定，不是官方評估） */
+const POLICY_SIM = {
+  orange: { stations: ['qsStn', 'airport', 'tc'], kmh: 35, headway: 8 },
+  busHw: 2 / 3, coastTraHw: 0.5, roadDelay: 0.7, carPark: 0.5, carParkFee: 30, scooterPark: 2, slowFactor: 0.95, bikeDock: 2,
+  ghost: 0.15, mrt: 0.08, jam: 0.4,
+};
+/** 「假設藍線通車」的站位：只用已查證的地點，班距與速度為模擬假設 */
+const BLUE_SIM = { stations: ['port', 'shalu', 'thu', 'cityhall', 'tc'], kmh: 35, headway: 6 };
+
+
+/* ============================ TomTom（經由 Claude 連接器） ============================
+ * 在 Claude 頁面中，網頁不能直接連外；改由 claude.use("mcp") 以「觀看者自己的」TomTom Maps 連接器查詢。
+ * 沒有連接器（或在一般瀏覽器開啟）時，mcp 為 null，自動退回 Photon／Nominatim／OSRM／模擬。
+ * 這裡不放任何金鑰：呼叫由 Claude 代為轉送，頁面看不到憑證。 */
+const TomTom = (() => {
+  const SERVER = 'TomTom Maps';
+  const BBOX = [120.45, 23.95, 121.45, 24.45];          // 台中市範圍（minLon, minLat, maxLon, maxLat）
+  const st = { mcp: undefined, state: 'checking', msg: '', calls: 0, lastRoute: null, lastTraffic: null };
+  let ready = null;
+  /** 取得 mcp 介面；null 表示這個畫面不能用連接器 */
+  function init() {
+    if (ready) return ready;
+    ready = (async () => {
+      try {
+        if (!window.claude || typeof window.claude.use !== 'function') { st.state = 'none'; st.msg = '不在 Claude 頁面中'; return null; }
+        const m = await window.claude.use('mcp');
+        st.mcp = m || null;
+        st.state = m ? 'ready' : 'none'; if (!m) st.msg = '這個畫面不能使用連接器';
+        return st.mcp;
+      } catch (e) { st.state = 'none'; st.msg = '無法啟用連接器'; return null; }
+    })();
+    return ready;
+  }
+  /** 依錯誤碼給出可以採取的動作（不把所有錯誤混成一句） */
+  function explain(e) {
+    const c = e && e.code;
+    const M = {
+      needs_reauth: '授權已過期：請到 claude.ai「設定 → 連接器」重新連接 TomTom Maps。',
+      server_not_connected: '尚未接上 TomTom Maps：可在 claude.ai「設定 → 連接器」新增。',
+      selection_required: '你有多個 TomTom Maps 連接器，請在 Claude 的提示中選一個。',
+      not_in_manifest: '你沒有允許這個頁面使用 TomTom Maps（可在頁面的權限設定中開啟）。',
+      approval_required: '需要你同意才能查詢 TomTom：再試一次，並在 Claude 的提示中按「允許」。',
+      consent_required: '需要你同意才能查詢 TomTom：再試一次，並在提示中按「允許」。',
+      blocked_by_policy: '你的組織政策不允許使用 TomTom Maps。',
+      server_unavailable: 'TomTom 暫時無法回應，稍後再試。',
+      rate_limited: '查詢太頻繁，稍等幾秒再試。',
+      tool_error: `TomTom 回報錯誤：${(e && e.message || '').slice(0, 120)}`,
+      not_granted: '這個畫面沒有連接器權限。', capability_disabled: '這個畫面不能使用連接器。', capability_removed: '這個畫面不能使用連接器。',
+    };
+    return M[c] || `TomTom 查詢失敗（${c || '未知錯誤'}）`;
+  }
+  const FATAL = new Set(['not_granted', 'capability_disabled', 'capability_removed', 'server_not_connected', 'blocked_by_policy', 'user_changed']);
+  async function call(tool, input) {
+    const m = await init(); if (!m) { const err = new Error(st.msg); err.code = 'unavailable'; throw err; }
+    const once = () => m.callTool(SERVER, tool, input);
+    try {
+      st.calls++;
+      let r;
+      try { r = await once(); }
+      catch (e) {   // 只有讀取、而且標示可重試時，等一下重試一次
+        if (!e || !e.retryable) throw e;
+        await new Promise(res => setTimeout(res, Math.min(e.retryAfterMs || 0, 8000) || 600 + Math.random() * 900));
+        r = await once();
+      }
+      st.state = 'ok'; st.msg = '';
+      return r && r.payload !== undefined ? r.payload : r;
+    } catch (e) {
+      st.msg = explain(e);
+      if (FATAL.has(e && e.code)) st.state = 'none'; else st.state = 'error';
+      throw e;
+    }
+  }
+
+  /* ---------- 地址 ---------- */
+  const PREC = { 'Point Address': '門牌', 'Address Range': '門牌（內插）', Street: '道路', 'Cross Street': '路口', POI: '地點', Geography: '行政區' };
+  const toPlace = (f, q) => {
+    const p = f.properties || {}, a = p.address || {}, [lng, lat] = f.geometry.coordinates;
+    const addr = (a.freeformAddress || '').replace(/^\d{3,6}/, '');
+    return { name: (p.poi && p.poi.name) || addr || q, addr, lat, lng, precision: PREC[p.type] || '地點', src: 'TomTom' };
+  };
+  const inBox = p => p.lng >= BBOX[0] && p.lng <= BBOX[2] && p.lat >= BBOX[1] && p.lat <= BBOX[3];
+  async function search(q) {
+    const j = await call('tomtom-fuzzy-search', { query: q, countries: ['TW'], language: 'zh-TW', view: 'TW', limit: 6, boundingBox: BBOX });
+    const seen = new Set();
+    return ((j && j.features) || []).map(f => toPlace(f, q)).filter(inBox)
+      .filter(p => { const k = `${p.name}|${p.lat.toFixed(4)}|${p.lng.toFixed(4)}`; if (seen.has(k)) return false; seen.add(k); return true; });
+  }
+  async function reverse(ll) {
+    const j = await call('tomtom-reverse-geocode', { position: [ll.lng, ll.lat], language: 'zh-TW', view: 'TW' });
+    const a = j && j.properties && j.properties.address;
+    return a && a.freeformAddress ? a.freeformAddress.replace(/^\d{3,6}/, '') : null;
+  }
+
+  /* ---------- 開車路線（預測車流） ---------- */
+  /** 指定日期時刻（台灣時間）的 ISO 字串；若已經過去，改用之後同星期、同時刻（TomTom 只接受未來時間） */
+  function arriveIso(dateStr, arriveMin) {
+    const hh = pad2(Math.floor(arriveMin / 60) % 24), mm = pad2(Math.round(arriveMin % 60));
+    let t = new Date(`${dateStr}T${hh}:${mm}:00+08:00`), shifted = 0;
+    while (t.getTime() < Date.now() + 5 * 60000) { t = new Date(t.getTime() + 7 * 86400000); shifted++; }
+    const tw = new Date(t.getTime() + 8 * 3600000);
+    const iso = `${tw.toISOString().slice(0, 19)}+08:00`;
+    return { iso, shifted, label: `${tw.getUTCMonth() + 1}/${tw.getUTCDate()} ${hh}:${mm}` };
+  }
+  const cache = new Map();
+  const rkey = (a, b, iso) => `${a.lat.toFixed(5)},${a.lng.toFixed(5)}>${b.lat.toFixed(5)},${b.lng.toFixed(5)}@${iso}`;
+  function peek(a, b, dateStr, arriveMin) { return cache.get(rkey(a, b, arriveIso(dateStr, arriveMin).iso)) || null; }
+  async function route(a, b, dateStr, arriveMin) {
+    const t = arriveIso(dateStr, arriveMin), k = rkey(a, b, t.iso);
+    if (cache.has(k)) return cache.get(k);
+    const j = await call('tomtom-routing', { locations: [[a.lng, a.lat], [b.lng, b.lat]], arriveAt: t.iso, traffic: 'historical', response_detail: 'geometry' });
+    const f = j && j.features && j.features[0], s = f && f.properties && f.properties.summary;
+    if (!s) throw Object.assign(new Error('TomTom 沒有回傳路線'), { code: 'tool_error' });
+    const g = j.geometry && j.geometry.features && j.geometry.features[0];
+    const pts = g && g.geometry && g.geometry.coordinates ? g.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) : [a, b];
+    const res = { km: s.lengthInMeters / 1000, min: s.travelTimeInSeconds / 60, delayMin: (s.trafficDelayInSeconds || 0) / 60,
+      pts, at: t, roads: [...new Set(((f.properties.sections || {}).importantRoadStretch || []).map(x => x.streetName).filter(Boolean))].slice(0, 3) };
+    cache.set(k, res); st.lastRoute = res;
+    return res;
+  }
+
+  /* ---------- 其他交通方式的道路路徑 ----------
+   * TomTom 只有汽車路網。機車：避開國道與收費道路（台灣機車不能上國道），依預測車流。
+   * 腳踏車、走路、公車段：取「最短」道路、避開國道，只用來決定沿哪些道路走與距離，速度另外估算。 */
+  const pcache = new Map();
+  const toPath = (j, a, b) => {
+    const f = j && j.features && j.features[0], s = f && f.properties && f.properties.summary;
+    if (!s) throw Object.assign(new Error('TomTom 沒有回傳路線'), { code: 'tool_error' });
+    const g = j.geometry && j.geometry.features && j.geometry.features[0];
+    return { km: s.lengthInMeters / 1000, min: s.travelTimeInSeconds / 60, delayMin: (s.trafficDelayInSeconds || 0) / 60,
+      pts: g && g.geometry && g.geometry.coordinates ? g.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) : [a, b] };
+  };
+  const pkey = (kind, a, b, extra = '') => `${kind}:${a.lat.toFixed(5)},${a.lng.toFixed(5)}>${b.lat.toFixed(5)},${b.lng.toFixed(5)}${extra}`;
+  function peekPath(kind, a, b, dateStr, arriveMin) {
+    return pcache.get(pkey(kind, a, b, kind === 'scooter' ? arriveIso(dateStr, arriveMin).iso : '')) || null;
+  }
+  async function path(kind, a, b, dateStr, arriveMin) {
+    const t = kind === 'scooter' ? arriveIso(dateStr, arriveMin) : null, k = pkey(kind, a, b, t ? t.iso : '');
+    if (pcache.has(k)) return pcache.get(k);
+    const input = kind === 'scooter'
+      ? { locations: [[a.lng, a.lat], [b.lng, b.lat]], arriveAt: t.iso, traffic: 'historical', avoid: ['motorways', 'tollRoads'], response_detail: 'geometry' }
+      : { locations: [[a.lng, a.lat], [b.lng, b.lat]], routeType: 'short', avoid: ['motorways', 'tollRoads'], response_detail: 'geometry' };
+    const res = { ...toPath(await call('tomtom-routing', input), a, b), at: t };
+    pcache.set(k, res);
+    return res;
+  }
+
+  /* ---------- 即時路況（事故、壅塞、封路、施工） ---------- */
+  const CAT = { accident: '交通事故', jam: '壅塞', 'road-closed': '道路封閉', roadworks: '道路施工', 'lane-closed': '車道封閉', 'broken-down-vehicle': '故障車', danger: '危險路況' };
+  const EVT = { 'Bridge closed': '橋梁封閉', Closed: '封閉', 'Stationary traffic': '車流停滯', 'Queuing traffic': '車流回堵', 'Slow traffic': '車流緩慢', 'Heavy traffic': '車多', Roadworks: '施工' };
+  /** 查路線範圍內「現在」的路況，只留距離路線 300 公尺內的 */
+  async function incidents(pts) {
+    if (!pts || pts.length < 2) return [];
+    const lats = pts.map(p => p.lat), lngs = pts.map(p => p.lng), pad = 0.01;
+    const bbox = [Math.min(...lngs) - pad, Math.min(...lats) - pad, Math.max(...lngs) + pad, Math.max(...lats) + pad].map(v => +v.toFixed(5));
+    const j = await call('tomtom-traffic', { bbox, categoryFilter: ['accident', 'jam', 'road-closed', 'roadworks', 'lane-closed', 'broken-down-vehicle'],
+      timeValidityFilter: ['present'], maxResults: 25, response_detail: 'geometry' });
+    const list = (j && j.incidents) || [], geo = (j && j.geometry && j.geometry.features) || [];
+    const step = Math.max(1, Math.floor(pts.length / 300)), sample = pts.filter((_, i) => i % step === 0);
+    const near = q => sample.some(p => km(p, q) < 0.3);
+    const out = [];
+    list.forEach((inc, i) => {
+      const g = geo.find(x => x.properties && x.properties.incident === i);
+      const line = g && g.geometry && g.geometry.coordinates ? g.geometry.coordinates.map(([lng, lat]) => ({ lat, lng })) : [];
+      if (!line.length) return;
+      const hit = line.find(near); if (!hit) return;
+      out.push({ cat: inc.category, catName: CAT[inc.category] || inc.category, from: inc.from || '', to: inc.to || '', m: inc.lengthInMeters || 0,
+        delay: inc.magnitudeOfDelay || '', events: (inc.events || []).map(e => EVT[e] || e), at: hit, line });
+    });
+    st.lastTraffic = { at: new Date(), n: out.length, total: (j && j.incidentSummary && j.incidentSummary.totalIncidents) || list.length };
+    return out;
+  }
+  return { init, search, reverse, route, peek, path, peekPath, incidents, arriveIso, explain, state: st, SERVER };
+})();
+
+/* ============================ 地址定位（Geocoder） ============================
+ * 依序嘗試：TomTom（Claude 連接器）→ Photon（komoot，OSM）→ Nominatim（OSM）。
+ * 在 Claude 頁面中只有 TomTom 能用（網頁不能直接連外）；在一般瀏覽器開啟時改用後兩者。 */
+const Geocoder = (() => {
+  const BOX = { w: 120.45, s: 23.95, e: 121.45, n: 24.45 };
+  const inBox = p => p.lng >= BOX.w && p.lng <= BOX.e && p.lat >= BOX.s && p.lat <= BOX.n;
+  const st = { last: '', errors: [] };
+  async function get(url) {
+    const ac = new AbortController(); const t = setTimeout(() => ac.abort(), 6000);
+    try { const r = await fetch(url, { signal: ac.signal, headers: { 'Accept-Language': 'zh-TW' } }); if (!r.ok) throw new Error(`HTTP ${r.status}`); return await r.json(); }
+    finally { clearTimeout(t); }
+  }
+  async function photon(q) {
+    const j = await get(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=24.15&lon=120.66&limit=8`);
+    return (j.features || []).map(f => {
+      const p = f.properties || {}, [lng, lat] = f.geometry.coordinates;
+      const addr = [p.city || p.county, p.district, p.street, p.housenumber && `${p.housenumber}號`].filter(Boolean).join('');
+      return { name: p.name || addr || q, addr: addr || p.name || '', lat, lng, precision: p.housenumber ? '門牌' : p.type === 'street' ? '道路' : p.type === 'house' ? '門牌' : '地點', src: 'Photon（OSM）' };
+    }).filter(inBox);
+  }
+  async function nominatim(q) {
+    const j = await get(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&countrycodes=tw&viewbox=${BOX.w},${BOX.n},${BOX.e},${BOX.s}&bounded=1&q=${encodeURIComponent(q)}`);
+    return (j || []).map(r => ({ name: r.name || r.display_name.split(',')[0], addr: r.display_name, lat: +r.lat, lng: +r.lon,
+      precision: r.address && r.address.house_number ? '門牌' : r.category === 'highway' ? '道路' : '地點', src: 'Nominatim（OSM）' }));
+  }
+  async function search(q) {
+    st.errors = [];
+    if (await TomTom.init()) {
+      try { const r = await TomTom.search(q); if (r.length) { st.last = 'TomTom'; return { results: r, provider: 'TomTom' }; } st.errors.push('TomTom：台中範圍內查無結果'); }
+      catch (e) { st.errors.push(`TomTom：${TomTom.explain(e)}`); }
+    }
+    for (const [name, fn] of [['Photon', photon], ['Nominatim', nominatim]]) {
+      try { const r = await fn(q); if (r.length) { st.last = name; return { results: r, provider: name }; } st.errors.push(`${name}：查無結果`); }
+      catch (e) { st.errors.push(`${name}：${e.name === 'AbortError' ? '逾時' : '無法連線'}`); }
+    }
+    return { results: [], provider: null };
+  }
+  /** 常用地點也可用名稱直接比對（離線可用） */
+  const local = q => { const s = q.replace(/\s/g, ''); return PICKABLE.filter(p => p.name.includes(s) || s.includes(p.name.replace(/^捷運|站$/g, ''))).slice(0, 6)
+    .map(p => ({ ...p, precision: '地標', src: p.src })); };
+  return { search, local, state: st };
+})();
+
+/* ============================ 5. Planner ============================ */
+/**
+ * 每種方式回傳：分鐘數、花費、各段路線（含地圖線條）。時間以「出發時的路況」計算，
+ * 並從指定的到達時間往回推出最晚出發時間（反覆計算 3 次以對齊出發時段的路況）。
+ */
+const MODES = {
+  car:     { name: '開車',     icon: '🚗', color: '--car' },
+  scooter: { name: '騎機車',   icon: '🛵', color: '--scooter' },
+  transit: { name: '大眾運輸', icon: '🚇', color: '--mrt' },
+  walk:    { name: '走路',     icon: '🚶', color: '--walk' },
+  bike:    { name: '騎腳踏車', icon: '🚲', color: '--bike' },
+};
+const BASE_MODES = Object.keys(MODES);
+for (const m of BASE_MODES) MODES[`${m}P`] = { ...MODES[m], name: `${MODES[m].name}・政見版`, hyp: true, base: m };
+const baseOf = m => MODES[m].base || m;
+const LEG = {
+  walk: { icon: '🚶', color: '--walk', name: '步行' }, bus: { icon: '🚌', color: '--bus', name: '公車' },
+  mrt: { icon: '🚇', color: '--mrt', name: '捷運綠線' }, tra: { icon: '🚆', color: '--rail', name: '台鐵' },
+  blue: { icon: '🚇', color: '--project', name: '藍線（政見版）' }, orange: { icon: '🚇', color: '--orangeline', name: '橘線（政見版）' },
+  car: { icon: '🚗', color: '--car', name: '開車' }, scooter: { icon: '🛵', color: '--scooter', name: '騎機車' },
+  bike: { icon: '🚲', color: '--bike', name: '騎腳踏車' }, taxi: { icon: '🚕', color: '--taxi', name: '計程車' },
+};
+const Planner = (() => {
+  const WALK_KMH = 4.6, DETOUR = 1.35, WALK_DETOUR = 1.3;
+  /** 道路距離與路線：有 OSRM 用 OSRM（估算），否則直線×繞行係數（模擬，地圖畫虛線） */
+  function road(profile, a, b) {
+    const r = Routing.peek(profile, a, b);
+    if (r) return { km: r.km, pts: r.pts, real: true, src: 'OSRM' };
+    const t = profile !== 'car' && TomTom.peekPath('slow', a, b);
+    if (t) return { km: t.km, pts: t.pts, real: true, src: 'TomTom' };
+    return { km: km(a, b) * (profile === 'foot' ? WALK_DETOUR : DETOUR), pts: [a, b], real: false };
+  }
+  function roadMode(mode, O, D, dateStr, dep, arriveMin) {
+    const c = congestion(dateStr, dep);
+    const tt = (mode === 'car' || mode === 'scooter') && arriveMin != null ? TomTom.peek(O, D, dateStr, arriveMin) : null;
+    if (mode === 'car' && tt) {
+      const park = c >= 1.5 ? 8 : 5, min = tt.min + park + 3;
+      return { min, cost: tt.km * 2.4 + 40, cong: c, real: true, tt: true, ttAt: tt.at, ttDelay: tt.delayMin,
+        legs: [{ mode: 'car', from: O, to: D, min, wait: 0, pts: tt.pts, dashed: false, km: tt.km,
+                 note: `TomTom 預測車流（${tt.at.label}）：道路 ${tt.km.toFixed(1)} km、車程 ${Math.round(tt.min)} 分${tt.delayMin >= 1 ? `（其中塞車 ${Math.round(tt.delayMin)} 分）` : ''}；另加找車位 ${park} 分、走到門口 3 分（模擬）` }],
+        costNote: '油錢每公里 $2.4＋停車 $40（模擬）' };
+    }
+    const sc = mode === 'scooter' && arriveMin != null ? TomTom.peekPath('scooter', O, D, dateStr, arriveMin) || tt : null;
+    if (mode === 'scooter' && sc) {
+      const ride = Math.max(sc.min - sc.delayMin * 0.55, sc.km / 45 * 60) * 1.05, own = sc !== tt;
+      return { min: ride + 4, cost: sc.km * 0.8 + 10, cong: c, real: true, tt: true, ttAt: tt ? tt.at : sc.at,
+        legs: [{ mode: 'scooter', from: O, to: D, min: ride + 4, wait: 0, pts: sc.pts, dashed: false, km: sc.km,
+                 note: `${own ? 'TomTom 避開國道的路線' : 'TomTom 開車路線'}：道路 ${sc.km.toFixed(1)} km；機車受塞車影響約一半、停車 4 分（估算）` }],
+        costNote: '油錢每公里 $0.8＋停車 $10（模擬）' };
+    }
+    if (mode === 'car') {
+      const r = road('car', O, D), drive = r.km / (38 / c) * 60, park = c >= 1.5 ? 8 : 5;
+      return { min: drive + park + 3, cost: r.km * 2.4 + 40, cong: c, real: r.real,
+        legs: [{ mode: 'car', from: O, to: D, min: drive + park + 3, wait: 0, pts: r.pts, dashed: !r.real, km: r.km,
+                 note: `道路 ${r.km.toFixed(1)} km、路況係數 ${c.toFixed(2)}、找車位 ${park} 分` }],
+        costNote: '油錢每公里 $2.4＋停車 $40（模擬）' };
+    }
+    if (mode === 'scooter') {
+      const r = road('car', O, D), f = 1 + (c - 1) * 0.45, ride = r.km / (33 / f) * 60;
+      return { min: ride + 4, cost: r.km * 0.8 + 10, cong: c, real: r.real,
+        legs: [{ mode: 'scooter', from: O, to: D, min: ride + 4, wait: 0, pts: r.pts, dashed: !r.real, km: r.km, note: `道路 ${r.km.toFixed(1)} km，機車受塞車影響較小（模擬）` }],
+        costNote: '油錢每公里 $0.8＋停車 $10（模擬）' };
+    }
+    if (mode === 'walk') {
+      const r = road('foot', O, D), min = r.km / WALK_KMH * 60;
+      return { min, cost: 0, cong: c, real: r.real, legs: [{ mode: 'walk', from: O, to: D, min, wait: 0, pts: r.pts, dashed: !r.real, km: r.km, note: `步行 ${r.km.toFixed(1)} km${r.real ? `（沿 ${r.src} 道路）` : '（直線估算）'}` }], costNote: '免費' };
+    }
+    const r = road('bike', O, D), min = r.km / 14 * 60 + 3;
+    return { min, cost: 10, cong: c, real: r.real, legs: [{ mode: 'bike', from: O, to: D, min, wait: 0, pts: r.pts, dashed: !r.real, km: r.km, note: `騎乘 ${r.km.toFixed(1)} km${r.real ? `（沿 ${r.src} 道路）` : '（直線估算）'}、借還車 3 分` }],
+      costNote: '以 YouBike 估 $10（模擬，實際費率以官方為準）' };
+  }
+
+  /** 大眾運輸：在「起點、終點、綠線 18 站、台鐵 3 站」間找最快組合（至少搭一段車） */
+  function transit(O, D, dateStr, dep, pol) {
+    const c = congestion(dateStr, dep);
+    const BL = pol ? BLUE_SIM.stations.map((k, i) => ({ id: `b${i}`, idx: i, ...PT[k], short: PT[k].name })) : [];
+    const OR = pol ? POLICY_SIM.orange.stations.map((k, i) => ({ id: `o${i}`, idx: i, ...PT[k], short: PT[k].name })) : [];
+    const nodes = [{ ...O, id: 'O' }, { ...D, id: 'D' }].concat(MRT, TRA, BL, OR);   // id 放最後，避免被地點自己的 id 覆蓋
+    const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
+    const edges = [];
+    const walkMin = d => d * WALK_DETOUR / WALK_KMH * 60;
+    // 步行：1.6 km 內
+    for (const a of nodes) for (const b of nodes) {
+      if (a === b || b.id === 'O' || a.id === 'D') continue;
+      const d = km(a, b);
+      if (d <= 1.6) edges.push({ a: a.id, b: b.id, mode: 'walk', min: Math.max(1, walkMin(d)), wait: 0, cost: 0, vehicle: false });
+    }
+    edges.push({ a: 'm14', b: 't_daqing', mode: 'walk', min: 3, wait: 0, cost: 0, vehicle: false, note: '大慶站轉乘' });
+    edges.push({ a: 't_daqing', b: 'm14', mode: 'walk', min: 3, wait: 0, cost: 0, vehicle: false, note: '大慶站轉乘' });
+    // 公車（一般市區公車估算，未指定路線）
+    const hwBus = Math.round(headway('bus', dateStr, dep) * (pol ? POLICY_SIM.busHw : 1)), busKmh = 20 / (1 + (c - 1) * 0.7);
+    for (const n of nodes) {
+      if (n.id === 'O' || n.id === 'D') continue;
+      const d1 = km(O, n), d2 = km(n, D);
+      if (d1 >= 1.0) edges.push({ a: 'O', b: n.id, mode: 'bus', wait: 4 + hwBus / 2, min: d1 * 1.4 / busKmh * 60 + 2, cost: 20, vehicle: true, hw: hwBus });
+      if (d2 >= 1.0) edges.push({ a: n.id, b: 'D', mode: 'bus', wait: 4 + hwBus / 2, min: d2 * 1.4 / busKmh * 60 + 2, cost: 20, vehicle: true, hw: hwBus });
+    }
+    const dOD = km(O, D);
+    if (dOD >= 1.0) edges.push({ a: 'O', b: 'D', mode: 'bus', wait: 4 + hwBus / 2, min: dOD * 1.4 / busKmh * 60 + 2, cost: 20, vehicle: true, hw: hwBus });
+    // 綠線：任兩站之間（沿車站連線距離，平均時速 33 km、每站停靠 0.5 分；模擬）
+    const hwM = headway('mrt', dateStr, dep);
+    for (let i = 0; i < MRT.length; i++) for (let j = 0; j < MRT.length; j++) {
+      if (i === j) continue;
+      const seq = i < j ? MRT.slice(i, j + 1) : MRT.slice(j, i + 1).reverse();
+      const k = lineKm(seq);
+      edges.push({ a: MRT[i].id, b: MRT[j].id, mode: 'mrt', wait: hwM / 2, min: k / 33 * 60 + 0.5 * (seq.length - 1), cost: mrtFare(k), vehicle: true, seq, hw: hwM });
+    }
+    // 假設藍線通車（模擬：時速與班距為假設，站位只用已查證的地點）
+    for (let i = 0; i < BL.length; i++) for (let j = 0; j < BL.length; j++) {
+      if (i === j) continue;
+      const seq = i < j ? BL.slice(i, j + 1) : BL.slice(j, i + 1).reverse();
+      const k = lineKm(seq);
+      edges.push({ a: BL[i].id, b: BL[j].id, mode: 'blue', wait: BLUE_SIM.headway / 2, min: k / BLUE_SIM.kmh * 60 + 0.5 * (seq.length - 1), cost: mrtFare(k), vehicle: true, seq, hw: BLUE_SIM.headway });
+    }
+    const OS = POLICY_SIM.orange;
+    for (let i = 0; i < OR.length; i++) for (let j = 0; j < OR.length; j++) {
+      if (i === j) continue;
+      const seq = i < j ? OR.slice(i, j + 1) : OR.slice(j, i + 1).reverse();
+      const k = lineKm(seq);
+      edges.push({ a: OR[i].id, b: OR[j].id, mode: 'orange', wait: OS.headway / 2, min: k / OS.kmh * 60 + 0.5 * (seq.length - 1), cost: mrtFare(k), vehicle: true, seq, hw: OS.headway });
+    }
+    // 台鐵（模擬行車時間與票價）
+    for (const [k2, ride] of Object.entries(TRA_RIDE)) {
+      const [a, b] = k2.split('|');
+      const hwT = Math.round(headway('tra', dateStr, dep) * (pol && k2.includes('t_shalu') ? POLICY_SIM.coastTraHw : 1));   // 海線雙軌化：班距減半
+      edges.push({ a, b, mode: 'tra', wait: hwT / 2, min: ride, cost: TRA_FARE[k2], vehicle: true, hw: hwT });
+      edges.push({ a: b, b: a, mode: 'tra', wait: hwT / 2, min: ride, cost: TRA_FARE[k2], vehicle: true, hw: hwT });
+    }
+    // 狀態：節點＋是否已搭過車；Dijkstra
+    const adj = {}; edges.forEach(e => { (adj[e.a] = adj[e.a] || []).push(e); });
+    const dist = { 'O|0': 0 }, prev = {}, done = new Set();
+    const q = [['O|0', 0]];
+    while (q.length) {
+      q.sort((x, y) => x[1] - y[1]);
+      const [s, d] = q.shift(); if (done.has(s)) continue; done.add(s);
+      const [node, used] = s.split('|');
+      if (node === 'D' && used === '1') break;
+      for (const e of adj[node] || []) {
+        if (e.mode === 'walk' && prev[s] && prev[s].e.mode === 'walk') continue;   // 不連續步行兩段
+        const ns = `${e.b}|${used === '1' || e.vehicle ? 1 : 0}`;
+        const nd = d + e.wait + e.min;
+        if (nd < (dist[ns] ?? Infinity)) { dist[ns] = nd; prev[ns] = { s, e }; q.push([ns, nd]); }
+      }
+    }
+    if (dist['D|1'] == null) return null;
+    const path = []; for (let s = 'D|1'; prev[s]; s = prev[s].s) path.unshift(prev[s].e);
+    const legs = path.map(e => {
+      const from = byId[e.a], to = byId[e.b];
+      const bp = e.mode === 'bus' ? (TomTom.peekPath('slow', from, to) || Routing.peek('car', from, to))
+               : e.mode === 'walk' ? (Routing.peek('foot', from, to) || TomTom.peekPath('slow', from, to)) : null;
+      const line = e.mode === 'mrt' || e.mode === 'blue' || e.mode === 'orange';
+      const pts = line ? e.seq.map(m => ({ lat: m.lat, lng: m.lng })) : bp ? bp.pts : [from, to];
+      const label = line ? `${e.seq[0].short} → ${e.seq[e.seq.length - 1].short}` : e.mode === 'tra' ? `${from.short} → ${to.short}` : '';
+      return { mode: e.mode, from, to, min: e.min, wait: e.wait, cost: e.cost, pts, dashed: e.mode !== 'mrt' && !bp, hw: e.hw, label,
+        note: e.mode === 'bus' ? `一般市區公車估算（未指定路線）：步行到站＋候車約 ${Math.round(e.wait)} 分${pol ? '（政見版：公車班距縮短）' : ''}` :
+              e.mode === 'mrt' ? `綠線 ${e.seq.length - 1} 站，候車約 ${Math.round(e.wait)} 分（班距模擬）` :
+              e.mode === 'blue' ? `政見版：藍線已通車，時速 ${BLUE_SIM.kmh} km、班距 ${BLUE_SIM.headway} 分（遊戲假設）` :
+              e.mode === 'orange' ? `政見版：橘線延伸清水已通車，時速 ${POLICY_SIM.orange.kmh} km、班距 ${POLICY_SIM.orange.headway} 分（遊戲假設）` :
+              e.mode === 'tra' ? `候車約 ${Math.round(e.wait)} 分（班距與行車時間模擬）` : (e.note || '') };
+    });
+    const total = legs.reduce((s, l) => s + l.wait + l.min, 0);
+    return { min: total, cost: legs.reduce((s, l) => s + l.cost, 0), cong: c, real: false, legs,
+      costNote: '捷運依綠線票價公式（2020 年資料）；公車 $20、台鐵為模擬票價' };
+  }
+
+  /** 開車、機車、走路、腳踏車的政見版：依 POLICY_SIM 的假設調整時間與花費 */
+  function applyPolicy(base, r) {
+    const L = r.legs[0], S2 = POLICY_SIM;
+    let saved = 0, dc = 0; const why = [];
+    if (base === 'car' || base === 'scooter') {
+      // 塞車延誤：行車時間中因尖峰變慢的部分（TomTom 回報的延誤與尖峰係數取較大者）
+      const park = r.cong >= 1.5 ? 8 : 5, drive = Math.max(0, L.min - (base === 'car' ? park + 3 : 4));
+      const f = base === 'car' ? r.cong : 1 + (r.cong - 1) * 0.45;
+      const delay = Math.max(base === 'car' ? r.ttDelay || 0 : 0, drive * (1 - 1 / Math.max(1, f)));
+      const d1 = delay * (1 - S2.roadDelay); saved += d1; if (d1 >= 0.5) why.push(`瓶頸改善：塞車少 ${Math.round(d1)} 分`);
+      if (base === 'car') { const d2 = park * (1 - S2.carPark); saved += d2; dc -= 40 - S2.carParkFee; why.push(`增闢停車場：找車位少 ${Math.round(d2)} 分、停車費 $${S2.carParkFee}`); }
+      else { saved += 4 - S2.scooterPark; why.push(`騎樓停車管理：停車少 ${4 - S2.scooterPark} 分`); }
+    } else {
+      const move = base === 'bike' ? L.min - 3 : L.min, d1 = move * (1 - S2.slowFactor); saved += d1; why.push(`路口改善：快 ${Math.round(d1)} 分`);
+      if (base === 'bike') { saved += 3 - S2.bikeDock; why.push(`轉運中心整合公共自行車：借還車少 ${3 - S2.bikeDock} 分`); }
+    }
+    const min = Math.max(1, r.min - saved);
+    return { ...r, min, cost: Math.max(0, r.cost + dc), legs: [{ ...L, min: Math.max(1, L.min - saved), note: `${L.note}｜政見版：${why.join('、')}` }], why };
+  }
+  function planOne(mode, O, D, dateStr, arriveMin) {
+    let dep = arriveMin - 40, res = null;
+    const base = baseOf(mode), pol = mode !== base;
+    for (let k = 0; k < 3; k++) {
+      res = base === 'transit' ? transit(O, D, dateStr, dep, pol) : roadMode(base, O, D, dateStr, dep, arriveMin);
+      if (res && pol && base !== 'transit') res = applyPolicy(base, res);
+      if (!res) return null;
+      dep = arriveMin - res.min;
+    }
+    res.mode = mode; res.depart = dep; res.arrive = arriveMin; res.min = Math.round(res.min);
+    return res;
+  }
+  /** 可連網時取得實際道路；有 TomTom 連接器時，再查指定時刻的預測車流 */
+  async function prefetch(O, D, dateStr, arriveMin) {
+    let tt = null, ttErr = null;
+    const jobs = [Routing.get('car', O, D), Routing.get('foot', O, D), Routing.get('bike', O, D)];
+    jobs.push(TomTom.init().then(m => m ? Promise.all([
+      TomTom.route(O, D, dateStr, arriveMin).then(r => { tt = r; }, e => { ttErr = e; }),
+      TomTom.path('scooter', O, D, dateStr, arriveMin).catch(() => null),
+      TomTom.path('slow', O, D).catch(() => null),
+    ]) : null));
+    await Promise.all(jobs);
+    return { tt, ttErr };
+  }
+  /** 依序：每種方式「現況」後面緊接「政見版」 */
+  function planAll(O, D, dateStr, arriveMin) {
+    const out = [];
+    for (const m of BASE_MODES) {
+      const now = planOne(m, O, D, dateStr, arriveMin), p = planOne(`${m}P`, O, D, dateStr, arriveMin);
+      if (now) out.push(now);
+      if (p) { if (now) { p.vsNow = now.min - p.min; p.costDiff = Math.round(now.cost) - Math.round(p.cost); } out.push(p); }
+    }
+    return out;
+  }
+  return { planAll, prefetch };
+})();
+
+
+
+/* ============================ 6. MapView ============================ */
+/**
+ * Leaflet 底圖依序嘗試：國土測繪中心「臺灣通用電子地圖」→ OpenStreetMap → 裝飾底圖（虛構街廓）。
+ * Leaflet 無法載入時改用依真實座標繪製的 SVG 示意圖。四種狀態分開記錄，不會互相誤報。
+ */
+const MapView = (() => {
+  const st = { js: 'pending', container: 'pending', tiles: 'pending', tilesLoaded: 0, base: '', error: '' };
+  let impl = null, initStarted = false, queued = null, onPin = null;
+  const color = v => css(v) || '#888';
+  const BASES = [
+    { key: 'emap', name: '臺灣通用電子地圖', url: 'https://wmts.nlsc.gov.tw/wmts/EMAP/default/GoogleMapsCompatible/{z}/{y}/{x}',
+      attribution: '臺灣通用電子地圖 &copy; <a href="https://maps.nlsc.gov.tw/" target="_blank" rel="noopener">內政部國土測繪中心</a>' },
+    { key: 'osm', name: 'OpenStreetMap', url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> 貢獻者' },
+  ];
+  const note = () => {
+    const el = $('#mapNote'); let t = '';
+    if (st.js === 'failed') t = `Leaflet 未載入（已嘗試 ${LeafletLoader.state.failed.join('、')}），改用依真實座標繪製的示意圖。`;
+    else if (st.container === 'failed') t = `Leaflet 已載入，但地圖初始化失敗（${st.error}），改用示意圖。`;
+    else if (st.base === 'deco') t = '無法載入地圖圖磚（Claude 頁面禁止外部圖片，或離線）。底圖為裝飾用的虛構街廓；地點、車站與路線座標是真實的。';
+    el.textContent = t; el.hidden = !t;
+  };
+
+  /* ---------- Leaflet ---------- */
+  const LF = {
+    map: null, g: {}, token: null, bubbles: new Map(), layer: null, baseIdx: 0, pins: {},
+    init() {
+      const map = this.map = L.map('map', { zoomControl: true, attributionControl: true, zoomSnap: 0.5 }).setView([24.18, 120.62], 11);
+      map.zoomControl.setPosition('topright');
+      map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+      ['policy', 'base', 'route', 'live', 'marks', 'bubbles'].forEach(k => { this.g[k] = L.layerGroup().addTo(map); });
+      this.tryBase(0);
+    },
+    /** 一個底圖 4 秒內沒有任何圖磚成功，就換下一個；全部失敗改用裝飾底圖 */
+    tryBase(i) {
+      if (this.layer) { this.map.removeLayer(this.layer); this.layer = null; }
+      if (i >= BASES.length) return this.useDeco();
+      const B = BASES[i]; let loaded = 0, failed = 0, done = false;
+      st.base = B.key; st.tiles = 'pending';
+      const next = () => { if (done) return; done = true; this.tryBase(i + 1); };
+      this.layer = L.tileLayer(B.url, { maxZoom: 19, attribution: B.attribution })
+        .on('tileload', () => { loaded++; st.tilesLoaded++; st.tiles = 'ok'; st.base = B.key; note(); })
+        .on('tileerror', () => { failed++; if (!loaded && failed >= 3) next(); })
+        .addTo(this.map);
+      setTimeout(() => { if (!loaded) next(); }, 4000);
+    },
+    useDeco() {
+      st.base = 'deco'; st.tiles = 'failed'; note();
+      const Deco = L.GridLayer.extend({
+        createTile(c) {
+          const t = document.createElement('canvas'); t.width = t.height = 256;
+          const x = t.getContext('2d');
+          let s = (c.x * 73856093) ^ (c.y * 19349663) ^ (c.z * 83492791);
+          const rnd = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+          x.fillStyle = color('--tile-bg'); x.fillRect(0, 0, 256, 256);
+          const cols = [color('--tile-block1'), color('--tile-block2'), color('--tile-block3'), color('--tile-park')];
+          for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+            const r = rnd(); x.fillStyle = cols[r < 0.12 ? 3 : Math.floor(r * 3)];
+            x.fillRect(i * 64 + 7, j * 64 + 7, 50, 50);
+          }
+          x.fillStyle = color('--tile-road');
+          for (let k = 0; k <= 4; k++) { x.fillRect(k * 64 - 3, 0, 6, 256); x.fillRect(0, k * 64 - 3, 256, 6); }
+          return t;
+        },
+      });
+      this.layer = new Deco({ attribution: '裝飾底圖（虛構街廓）' }).addTo(this.map);
+      if (this.layer.bringToBack) this.layer.bringToBack();
+    },
+    ll: p => [p.lat, p.lng],
+    clear(k) { this.g[k].clearLayers(); },
+    line(k, pts, opt, act) {
+      const pl = L.polyline(pts.map(this.ll), { ...opt, interactive: !!act }).addTo(this.g[k]);
+      if (act && pl.on) pl.on('click', e => ACT.policy(act, null, e.latlng ? { lat: e.latlng.lat, lng: e.latlng.lng } : null));
+    },
+    marker(k, p, html, size, anchor, z = 0) {
+      return L.marker(this.ll(p), { icon: L.divIcon({ className: '', html, iconSize: size, iconAnchor: anchor }), interactive: /data-act=/.test(html), keyboard: false, zIndexOffset: z }).addTo(this.g[k]);
+    },
+    /** 起點、終點圖釘可拖曳，用來校正位置 */
+    pin(which, p, html) {
+      const m = L.marker(this.ll(p), { icon: L.divIcon({ className: '', html, iconSize: [18, 18], iconAnchor: [9, 9] }), draggable: true, keyboard: false, zIndexOffset: 2500, title: '拖曳以校正位置' }).addTo(this.g.marks);
+      if (m.on) m.on('dragend', () => { const q = m.getLatLng(); if (onPin) onPin(which, { lat: q.lat, lng: q.lng }); });
+    },
+    setToken(p, html) {
+      if (!this.token) this.token = L.marker(this.ll(p), { icon: L.divIcon({ className: '', html, iconSize: [40, 40], iconAnchor: [20, 28] }), interactive: false, zIndexOffset: 3000 }).addTo(this.map);
+      else { this.token.setLatLng(this.ll(p)); if (html !== this._h) this.token.setIcon(L.divIcon({ className: '', html, iconSize: [40, 40], iconAnchor: [20, 28] })); }
+      this._h = html;
+    },
+    hideToken() { if (this.token) { this.map.removeLayer(this.token); this.token = null; this._h = null; } },
+    bubble(id, p, html) {
+      this.unbubble(id);
+      try { const pt = this.map.latLngToContainerPoint(this.ll(p)); html = placeBubble(html, pt.x, pt.y, this.map.getSize().x); } catch (e) { /* 維持預設位置 */ }
+      const m = L.marker(this.ll(p), { icon: L.divIcon({ className: 'bub-host', html, iconSize: [0, 0], iconAnchor: [0, 0] }), interactive: true, keyboard: false, zIndexOffset: 4000 }).addTo(this.g.bubbles);
+      const el = m.getElement && m.getElement(); if (el && L.DomEvent) { L.DomEvent.disableClickPropagation(el); L.DomEvent.disableScrollPropagation(el); }
+      this.bubbles.set(id, m);
+    },
+    unbubble(id) { const m = this.bubbles.get(id); if (m) { this.g.bubbles.removeLayer(m); this.bubbles.delete(id); } },
+    fit(pts) { if (pts.length) this.map.fitBounds(L.latLngBounds(pts.map(this.ll)).pad(0.15), { maxZoom: 15 }); },
+    pan(p) { if (!this.map.getBounds().pad(-0.15).contains(this.ll(p))) this.map.panTo(this.ll(p), { animate: !reduceMotion }); },
+  };
+
+  /* ---------- SVG 示意圖 ---------- */
+  const SV = {
+    layers: { policy: [], base: [], route: [], live: [], marks: [] }, bubbles: new Map(), token: null, bbox: null,
+    init() { $('#map').innerHTML = '<svg id="svgmap" role="img" aria-label="依真實座標繪製的示意圖"></svg><div id="svgOverlay"></div>'; window.addEventListener('resize', () => this.draw()); },
+    project(p) {
+      const el = $('#svgmap'); const W = el.clientWidth || 600, H = el.clientHeight || 500;
+      const b = this.bbox || { s: 24.10, n: 24.30, w: 120.50, e: 120.72 };
+      const dy = (b.n - b.s) || 0.02, dx = (b.e - b.w) || 0.02;
+      const s = b.s - dy * 0.12, n = b.n + dy * 0.12, w = b.w - dx * 0.12, e = b.e + dx * 0.12;
+      const k = Math.cos(((s + n) / 2) * Math.PI / 180), sc = Math.min(W / ((e - w) * k), (H - 60) / (n - s));
+      const ox = (W - (e - w) * k * sc) / 2, oy = (H - (n - s) * sc) / 2 + 30;
+      return [ox + (p.lng - w) * k * sc, oy + (n - p.lat) * sc];
+    },
+    clear(k) { this.layers[k] = []; this.draw(); },
+    line(k, pts, opt, act) { this.layers[k].push({ t: 'line', pts, opt, act }); this.draw(); },
+    marker(k, p, html) { this.layers[k].push({ t: 'mk', p, html }); this.draw(); },
+    pin(which, p, html) { this.layers.marks.push({ t: 'mk', p, html }); this.draw(); },
+    draw() {
+      const svg = $('#svgmap'), ov = $('#svgOverlay'); if (!svg) return;
+      let h = '';
+      for (let i = 0; i < 50; i++) h += `<line x1="${i * 48}" y1="0" x2="${i * 48}" y2="3000" stroke="${color('--tile-road')}" stroke-width="1"/><line x1="0" y1="${i * 48}" x2="3000" y2="${i * 48}" stroke="${color('--tile-road')}" stroke-width="1"/>`;
+      for (const k of ['policy', 'base', 'route', 'live']) for (const it of this.layers[k]) {
+        if (it.t !== 'line') continue;
+        const d = it.pts.map((p, i) => { const [x, y] = this.project(p); return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`; }).join(' ');
+        h += `<path d="${d}" fill="none" stroke="${it.opt.color}" stroke-width="${it.opt.weight || 3}" opacity="${it.opt.opacity ?? 1}" stroke-linecap="round" stroke-linejoin="round" ${it.opt.dashArray ? `stroke-dasharray="${it.opt.dashArray}"` : ''}/>`;
+        if (it.act) h += `<path d="${d}" fill="none" stroke="transparent" stroke-width="14" style="cursor:pointer;pointer-events:stroke" data-act="policy" data-arg="${it.act}"/>`;
+      }
+      svg.innerHTML = h;
+      let o = '';
+      for (const k of ['policy', 'base', 'live', 'marks']) for (const it of this.layers[k]) if (it.t === 'mk') { const [x, y] = this.project(it.p); o += `<div style="left:${x}px;top:${y}px;transform:translate(-50%,-50%)">${it.html}</div>`; }
+      if (this.token) { const [x, y] = this.project(this.token.p); o += `<div style="left:${x}px;top:${y}px;transform:translate(-50%,-70%);z-index:5">${this.token.html}</div>`; }
+      for (const [id, b] of this.bubbles) { const [x, y] = this.project(b.p); o += `<div style="left:${x}px;top:${y}px;z-index:6" data-bub="${id}">${b.html}</div>`; }
+      ov.innerHTML = o;
+    },
+    setToken(p, html) { this.token = { p, html }; this.draw(); },
+    hideToken() { this.token = null; this.draw(); },
+    bubble(id, p, html) { const [x, y] = this.project(p); html = placeBubble(html, x, y, $('#svgmap').clientWidth || 600); this.bubbles.set(id, { p, html }); this.draw(); },
+    unbubble(id) { this.bubbles.delete(id); this.draw(); },
+    fit(pts) {
+      if (!pts.length) return;
+      const lat = pts.map(p => p.lat), lng = pts.map(p => p.lng);
+      this.bbox = { s: Math.min(...lat), n: Math.max(...lat), w: Math.min(...lng), e: Math.max(...lng) }; this.draw();
+    },
+    pan() {},
+  };
+
+  const STYLE = {
+    policy: () => ({ color: color('--policy'), weight: 4, opacity: 0.95, dashArray: '1 8', lineCap: 'round' }),
+    project: () => ({ color: color('--project'), weight: 4, opacity: 0.9, dashArray: '14 9' }),
+    exist: () => ({ color: color('--exist'), weight: 4, opacity: 0.9 }),
+  };
+  return {
+    st,
+    set onPin(fn) { onPin = fn; },
+    async init() {
+      if (initStarted) return; initStarted = true;
+      const ok = await LeafletLoader.load();
+      st.js = ok ? 'ok' : 'failed';
+      if (ok) { try { LF.init(); impl = LF; st.container = 'ok'; } catch (e) { st.container = 'failed'; st.error = e.message || String(e); $('#map').innerHTML = ''; } }
+      if (!impl) { impl = SV; SV.init(); st.tiles = 'skipped'; if (st.container !== 'failed') st.container = 'skipped'; }
+      note();
+      if (queued) { const f = queued; queued = null; f(); }
+    },
+    whenReady(f) { if (impl) f(); else queued = f; },
+    mode: () => (impl === LF ? 'leaflet' : impl === SV ? 'svg' : 'loading'),
+    drawBase(O, D) {
+      if (!impl) return;
+      impl.clear('base'); impl.clear('marks');
+      impl.line('base', MRT, { color: color('--mrt'), weight: 4, opacity: 0.75 });
+      impl.line('base', [TRA[0], TRA[1], TRA[2]], { color: color('--rail'), weight: 2, opacity: 0.6, dashArray: '6 6' });
+      MRT.forEach(m => impl.marker('base', m, `<div class="stn" title="${esc(m.name)}"></div>`, [9, 9], [4.5, 4.5]));
+      TRA.forEach(t => impl.marker('base', t, `<div class="stn tra" title="${esc(t.name)}"></div>`, [9, 9], [4.5, 4.5]));
+      [MRT[0], MRT[8], MRT[14], MRT[17]].forEach(m => impl.marker('base', m, `<div class="stn-label">綠線・${esc(m.short)}</div>`, [0, 0], [0, 0]));
+      if (O) { impl.pin('from', O, '<div class="pin"></div>'); impl.marker('marks', O, `<div class="pin-lbl">起・${esc(O.name)}</div>`, [0, 0], [0, 0], 2400); }
+      if (D) { impl.pin('to', D, '<div class="pin d"></div>'); impl.marker('marks', D, `<div class="pin-lbl">迄・${esc(D.name)}</div>`, [0, 0], [0, 0], 2400); }
+    },
+    /** 政見地圖：政見（朱色點線）、建設計畫（藍色長虛線）、既有道路（灰色實線）；每條都可點開來源 */
+    drawPolicy(show) {
+      if (!impl) return;
+      impl.clear('policy');
+      if (!show) return;
+      for (const p of POLICY_MAP) {
+        const pts = p.pts.map(k => PT[k]);
+        if (pts.length > 1) {
+          impl.line('policy', pts, { color: '#ffffff', weight: 8, opacity: 0.8 });
+          impl.line('policy', pts, STYLE[p.kind](), p.id);
+        }
+        const mid = pts[Math.floor((pts.length - 1) / 2)], nxt = pts[Math.min(pts.length - 1, Math.floor((pts.length - 1) / 2) + 1)];
+        const at = pts.length > 1 ? { lat: (mid.lat + nxt.lat) / 2, lng: (mid.lng + nxt.lng) / 2 } : mid;
+        impl.marker('policy', at, `<button class="pol-label ${p.kind}" data-act="policy" data-arg="${p.id}">${esc(p.short)}</button>`, [0, 0], [0, 0], 1500);
+      }
+    },
+    drawRoute(legs) {
+      if (!impl) return;
+      impl.clear('route');
+      (legs || []).forEach(l => {
+        impl.line('route', l.pts, { color: '#ffffff', weight: 8, opacity: 0.9 });
+        impl.line('route', l.pts, { color: color(LEG[l.mode].color), weight: 4, opacity: 1, dashArray: l.dashed ? '8 7' : null });
+      });
+    },
+    /** TomTom 即時路況：沿途的事故、壅塞、封路（紅線＋圖示，可點開） */
+    drawLive(list) {
+      if (!impl) return;
+      impl.clear('live');
+      (list || []).forEach((x, i) => {
+        if (x.line.length > 1) { impl.line('live', x.line, { color: '#ffffff', weight: 9, opacity: 0.9 }); impl.line('live', x.line, { color: color('--danger'), weight: 5, opacity: 0.85 }); }
+        impl.marker('live', x.at, `<button class="live-mk" data-act="live" data-arg="${i}" aria-label="${esc(x.catName)}">${LIVE_ICON(x.cat)}</button>`, [0, 0], [0, 0], 1600);
+      });
+    },
+    setToken(p, html) { if (impl) impl.setToken(p, html); },
+    hideToken() { if (impl) impl.hideToken(); },
+    bubble(id, p, html) { if (impl) impl.bubble(id, p, html); },
+    unbubble(id) { if (impl) impl.unbubble(id); },
+    fit(pts) { if (impl) impl.fit(pts); },
+    pan(p) { if (impl) impl.pan(p); },
+  };
+})();
+
+/* ============================ 7. Sim ============================ */
+const LIVE_ICON = c => c === 'jam' ? '🚥' : c === 'accident' ? '💥' : c === 'broken-down-vehicle' ? '🚗' : '🚧';
+const tokenHtml = (legMode, bounce) => `<div class="tok${bounce ? ' bounce' : ''}"><span class="face">🧑‍💼</span><span class="veh">${LEG[legMode].icon}</span></div>`;
+/** 依對話框在地圖中的位置：太靠上就翻到下方、太靠左右就往內推（尾巴仍指向原點） */
+function placeBubble(html, x, y, W) {
+  const half = Math.min(270, W * 0.62) / 2 + 8;
+  const dx = Math.round(clamp(x, half, Math.max(half, W - half)) - x);
+  html = html.replace('class="bub ', `style="--dx:${dx}px;margin-left:${dx}px" class="bub ${y < 330 ? 'below ' : ''}`);
+  return html;
+}
+const srcLinks = list => list.map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a>`).join('・');
+function noteBubble(n) {
+  const kind = n.type === 'policy' ? '政見・尚未實施' : '建設計畫・未完工';
+  return `<div class="bub ${n.type}"><button class="x" data-act="closeBub" aria-label="關閉">×</button>
+    <h4><span class="k ${n.type}">${kind}</span>${esc(n.title)}</h4><p>${esc(n.text)}</p>
+    <div class="src">${n.date ? `發布 ${n.date}・` : ''}來源：${srcLinks(n.src)}</div></div>`;
+}
+
+/** 意外事件（事件本身是遊戲模擬；依據為新聞報導） */
+const INCIDENTS = {
+  ghost: { title: '幽靈公車', icon: '👻', legs: ['bus'], at: 0.04,
+    text: () => 'App 顯示公車快到了，等了半天卻沒有車。',
+    news: NEWS.ghost, note: 'busApp',
+    options: (L, ctx) => [
+      { label: `再等下一班（多等約 ${L.hw} 分）`, dt: L.hw, dc: 0 },
+      { label: `改叫計程車（約 ${money(85 + ctx.legKm(L) * 20)}）`, dt: Math.round(4 - L.min * 0.3), dc: Math.round(85 + ctx.legKm(L) * 20) - L.cost, swap: 'taxi' },
+    ] },
+  mrt: { title: '捷運號誌異常', icon: '⚠️', legs: ['mrt'], at: 0.45,
+    text: () => '綠線號誌異常，列車暫停，改手動慢速行駛。',
+    news: NEWS.mrt, note: 'rideCheck',
+    options: (L, ctx) => [
+      { label: '留在車上等恢復（新聞案例約 21 分）', dt: 21, dc: 0 },
+      { label: `出站改叫計程車（約 ${money(85 + ctx.legKm(L) * 0.6 * 20)}）`, dt: 8, dc: Math.round(85 + ctx.legKm(L) * 0.6 * 20), swap: 'taxi' },
+    ] },
+  drug: { title: '毒駕連環撞', icon: '🚨', legs: ['car', 'scooter'], at: 0.55,
+    text: () => '前方路口發生毒駕連環撞，車道封閉、車流回堵。',
+    news: NEWS.drug, note: null,
+    options: () => [
+      { label: '排隊等事故排除（約 18 分）', dt: 18, dc: 0 },
+      { label: '繞道（多約 7 分、多 2 km）', dt: 7, dc: 5 },
+    ] },
+  jam: { title: '尖峰塞車', icon: '🚥', legs: ['car', 'scooter', 'bus'], at: 0.3,
+    text: c => `通勤尖峰車流緩慢（路況係數 ${c.toFixed(2)}），今天比平常更塞。`,
+    news: null, note: 'roads',
+    options: () => [
+      { label: `跟著車流慢慢走（多約 ${randInt(6, 12)} 分）`, dtRand: [6, 12], dc: 0 },
+      { label: '鑽小路（多約 4 分）', dt: 4, dc: 0 },
+    ] },
+  ttlive: { title: '沿途即時路況', icon: '🚧', legs: ['car', 'scooter'], at: 0.4, live: true,
+    text: (c, ev) => { const x = ev.data; return `TomTom 回報：${x.from}${x.to && x.to !== x.from ? ` → ${x.to}` : ''}一帶${x.catName}${x.events.length ? `（${x.events.join('、')}）` : ''}。這是查詢當下的真實路況。`; },
+    news: null, note: 'roads',
+    options: (L, ctx, ev) => {
+      const x = ev.data, slow = Math.max(3, Math.min(15, Math.round(x.m / 1000 * 4)));
+      return /closed/.test(x.cat) ? [{ label: '繞道避開封閉路段（多約 6 分）', dt: 6, dc: 5 }, { label: '停下來查替代路線（多約 9 分）', dt: 9, dc: 0 }]
+        : [{ label: `跟著車流走（多約 ${slow} 分）`, dt: slow, dc: 0 }, { label: '改走替代道路（多約 5 分）', dt: 5, dc: 3 }];
+    } },
+  rain: { title: '突然下大雨', icon: '🌧️', legs: ['walk', 'bike'], at: 0.5,
+    text: () => '下起大雨，走路和騎車都變慢。',
+    news: null, note: null,
+    options: L => [
+      { label: `撐傘繼續（多約 ${Math.min(15, Math.round(L.min * 0.3))} 分）`, dt: Math.min(15, Math.round(L.min * 0.3)), dc: 0 },
+      { label: '躲雨等雨變小（多 10 分）', dt: 10, dc: 0 },
+    ] },
+};
+
+const Sim = (() => {
+  let run = null;
+  /** 依路段決定這趟會遇到哪些事件（最多 2 個；機率為遊戲設定） */
+  function roll(plan) {
+    const out = [], pol = !!MODES[plan.mode].base, PS = POLICY_SIM;
+    plan.legs.forEach((L, i) => {
+      if (L.mode === 'bus' && Math.random() < (pol ? PS.ghost : 0.35)) out.push({ i, key: 'ghost' });
+      else if (L.mode === 'mrt' && Math.random() < (pol ? PS.mrt : 0.18)) out.push({ i, key: 'mrt' });
+      else if ((L.mode === 'car' || L.mode === 'scooter')) {
+        if (plan.live && plan.live.length && Math.random() < 0.8) out.push({ i, key: 'ttlive', data: plan.live[Math.floor(Math.random() * plan.live.length)] });
+        else if (Math.random() < 0.12) out.push({ i, key: 'drug' });
+        else if (plan.cong >= 1.4 && Math.random() < (pol ? PS.jam : 0.65)) out.push({ i, key: 'jam' });
+      } else if ((L.mode === 'walk' && L.min >= 10) || L.mode === 'bike') { if (Math.random() < 0.12) out.push({ i, key: 'rain' }); }
+    });
+    return out.slice(0, 2);
+  }
+  function start(plan, ui) {
+    stop();
+    const legs = plan.legs.map(l => ({ ...l, dur: l.wait + l.min, cum: [0] }));
+    legs.forEach(l => { for (let k = 1; k < l.pts.length; k++) l.cum.push(l.cum[k - 1] + km(l.pts[k - 1], l.pts[k])); });
+    const events = roll(plan);
+    run = { plan, legs, events, ui, legIdx: 0, legT: 0, clock: plan.depart, delay: 0, extraCost: 0, paused: false,
+            seenNotes: new Set(), log: [], raf: 0, last: 0, firedEvents: new Set() };
+    MapView.drawRoute(plan.legs);
+    MapView.fit(plan.legs.flatMap(l => l.pts));
+    ui.onUpdate(run);
+    run.last = performance.now();
+    run.raf = requestAnimationFrame(tick);
+  }
+  const posOn = (L, f) => {
+    const total = L.cum[L.cum.length - 1] || 1, d = f * total;
+    let k = 1; while (k < L.cum.length - 1 && L.cum[k] < d) k++;
+    const a = L.pts[k - 1], b = L.pts[k] || a, span = (L.cum[k] - L.cum[k - 1]) || 1, t = clamp((d - L.cum[k - 1]) / span, 0, 1);
+    return { lat: a.lat + (b.lat - a.lat) * t, lng: a.lng + (b.lng - a.lng) * t };
+  };
+  // 每遊戲分鐘的動畫毫秒數：總長壓在約 9–16 秒
+  const msPerMin = () => reduceMotion ? 25 : clamp(12000 / Math.max(20, run.plan.min), 90, 260);
+  function tick(now) {
+    if (!run || run.paused) return;
+    const dtMin = (now - run.last) / msPerMin(); run.last = now;
+    const L = run.legs[run.legIdx];
+    run.legT += dtMin; run.clock += dtMin;
+    const moveF = L.dur ? clamp((run.legT - L.wait) / Math.max(0.01, L.min), 0, 1) : 1;
+    const p = posOn(L, moveF);
+    MapView.setToken(p, tokenHtml(L.mode, run.legT < L.wait));
+    MapView.pan(p);
+    // 事件
+    const ev = run.events.find(e => e.i === run.legIdx && !run.firedEvents.has(e));
+    if (ev && run.legT >= L.dur * INCIDENTS[ev.key].at) { run.firedEvents.add(ev); return openIncident(ev, L, p); }
+    // 路過政見或建設地點
+    for (const a of ANCHORS) {
+      if (a.mode && a.mode !== L.mode) continue;
+      if (km(p, a.at) < 1.3) for (const n of a.notes) if (!run.seenNotes.has(n)) { showNote(n, a.at); break; }
+    }
+    if (run.legT >= L.dur) {
+      run.legT = 0; run.legIdx++;
+      if (run.legIdx >= run.legs.length) return finish();
+    }
+    run.ui.onUpdate(run);
+    run.raf = requestAnimationFrame(tick);
+  }
+  function showNote(key, at) {
+    run.seenNotes.add(key);
+    const n = NOTES[key];
+    run.log.push({ kind: n.type, html: `<span class="k ${n.type}">${n.type === 'policy' ? '政見' : '建設'}</span> ${esc(n.title)}` });
+    MapView.bubble(`n_${key}`, at, noteBubble(n));
+    setTimeout(() => MapView.unbubble(`n_${key}`), 7000);
+  }
+  function openIncident(ev, L, p) {
+    run.paused = true;
+    const I = INCIDENTS[ev.key];
+    const ctx = { legKm: l => l.km || lineKm(l.pts) * 1.3 };
+    const opts = I.options(L, ctx, ev);
+    run.pending = { ev, L, opts, p };
+    const html = `<div class="bub event"><h4><span class="k news">${I.live ? '即時路況' : '突發事件'}</span>${I.icon} ${esc(I.title)}</h4><p>${esc(I.text(run.plan.cong, ev))}</p>
+      <div class="choices">${opts.map((o, k) => `<button class="btn" data-act="choose" data-arg="${k}">${esc(o.label)}</button>`).join('')}</div>
+      ${I.news ? `<div class="src">新聞依據：${I.news.map(n => `<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.pub)} ${n.date}</a>`).join('、')}（事件為遊戲模擬）</div>` : I.live ? '<div class="src">來源：TomTom Traffic（查詢當下的路況；延誤分鐘為遊戲估算）</div>' : '<div class="src">遊戲模擬事件</div>'}</div>`;
+    MapView.setToken(p, tokenHtml(L.mode, true));
+    MapView.bubble('incident', p, html);
+    run.ui.onIncident(run, I, opts);
+    // 相關政見同時出現（不擋住事件對話框：放在終點方向）
+    if (I.note && !run.seenNotes.has(I.note)) {
+      const showRoad = I.note !== 'roads' || run.plan.legs.some(l => l.pts.some(q => q.lng < 120.62));   // 海線道路政見只在經過海線時顯示
+      const at = run.plan.arrivePt || run.plan.legs[run.plan.legs.length - 1].to;
+      // 窄螢幕一次只顯示一個對話框：先處理事件，再顯示相關政見
+      if (showRoad) { if (($('#map').clientWidth || 0) < 600) run.deferNote = { key: I.note, at }; else showNote(I.note, at); }
+    }
+  }
+  function choose(k) {
+    if (!run || !run.pending) return;
+    const { ev, opts } = run.pending, o = opts[k]; if (!o) return;
+    const dt = o.dtRand ? randInt(o.dtRand[0], o.dtRand[1]) : o.dt;
+    const cur = run.legs[run.legIdx];
+    if (dt >= 0) run.clock += dt;                                   // 等待：時鐘往前，路段不變
+    else cur.dur = Math.max(run.legT + 1, cur.dur + dt);            // 改搭更快的車：縮短剩下的路段，時鐘不倒退
+    run.delay += dt; run.extraCost += o.dc || 0;
+    if (o.swap === 'taxi') cur.mode = 'taxi';
+    run.log.push({ kind: 'event', html: `${INCIDENTS[ev.key].icon} ${esc(INCIDENTS[ev.key].title)}：${esc(o.label.replace(/（.*?）/, ''))}（${dt >= 0 ? '+' : '−'}${Math.abs(dt)} 分${o.dc ? `、${o.dc > 0 ? '+' : '−'}${money(Math.abs(o.dc))}` : ''}）` });
+    run.pending = null; run.paused = false;
+    MapView.unbubble('incident');
+    if (run.deferNote) { const d = run.deferNote; run.deferNote = null; showNote(d.key, d.at); }
+    run.last = performance.now();
+    run.ui.onUpdate(run);
+    run.raf = requestAnimationFrame(tick);
+  }
+  function finish() {
+    const r = run; r.done = true;
+    MapView.setToken(r.plan.legs[r.plan.legs.length - 1].to, tokenHtml(r.legs[r.legs.length - 1].mode, false));
+    r.ui.onFinish(r);
+  }
+  function stop() {
+    if (run) { cancelAnimationFrame(run.raf); MapView.unbubble('incident'); Object.keys(NOTES).forEach(k => MapView.unbubble(`n_${k}`)); }
+    run = null;
+  }
+  return { start, choose, stop, get run() { return run; } };
+})();
+
+
+/* ============================ 8. UI ============================ */
+const UI = (() => {
+  const localDate = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  const nextMonday = () => { const d = new Date(); const add = (8 - d.getDay()) % 7 || 7; d.setDate(d.getDate() + add); return localDate(d); };
+  const asPlace = p => ({ ...p, precision: p.precision || '地標', src: p.src || 'Wikipedia' });
+  const S = {
+    from: asPlace(PLACES.find(p => p.id === 'shalu')), to: asPlace(PLACES.find(p => p.id === 'ntt')),
+    date: nextMonday(), time: '09:00', plans: null, view: 'plan', policy: true, blue: false,
+    q: { from: '', to: '' }, sugg: { from: [], to: [] }, msg: { from: '', to: '' }, busy: { from: false, to: false },
+    seq: 0, live: [], liveAt: null, ttMsg: '', liveMsg: '', ttLoading: false,
+  };
+  const minuteOf = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const WEEK = '日一二三四五六';
+  const PRESETS = ['tc_stn', 'shalu', 'ntt', 'nmns', 'fengjia', 'thu', 'hsr'].map(id => PLACES.find(p => p.id === id));
+
+  const plan = () => { const ps = Planner.planAll(S.from, S.to, S.date, minuteOf(S.time)); ps.forEach(p => { if (p.tt) p.live = S.live; }); return ps; };
+  async function compute() {
+    const O = S.from, D = S.to, my = ++S.seq;
+    S.live = []; S.liveMsg = ''; S.ttMsg = '';
+    if (!O || !D || (Math.abs(O.lat - D.lat) < 1e-5 && Math.abs(O.lng - D.lng) < 1e-5)) { S.plans = []; render(); redrawMap(); return; }
+    S.plans = plan(); S.ttLoading = TomTom.state.state !== 'none';
+    render(); redrawMap();
+    const { tt, ttErr } = await Planner.prefetch(O, D, S.date, minuteOf(S.time));   // 實際道路距離＋TomTom 預測車流
+    if (my !== S.seq) return;                                                    // 期間又改了起訖點或時間
+    S.ttLoading = false; S.ttMsg = ttErr ? TomTom.explain(ttErr) : '';
+    S.plans = plan(); render(); redrawMap();
+    if (!tt) return;
+    try {
+      const live = await TomTom.incidents(tt.pts);
+      if (my !== S.seq) return;
+      S.live = live; S.liveAt = new Date(); S.plans = plan(); render(); redrawMap();
+    } catch (e) { if (my === S.seq) { S.liveMsg = TomTom.explain(e); render(); } }
+  }
+  function redrawMap(fitPolicy) {
+    MapView.whenReady(() => {
+      MapView.drawPolicy(S.policy);
+      MapView.drawBase(S.from, S.to);
+      MapView.drawLive(S.live);
+      const best = S.plans && S.plans.length ? S.plans.slice().sort((a, b) => a.min - b.min)[0] : null;
+      if (S.view === 'plan') { MapView.drawRoute(best ? best.legs : []); MapView.hideToken(); }
+      const pts = fitPolicy ? Object.values(PT) : [S.from, S.to].concat(best ? best.legs.flatMap(l => l.pts) : []);
+      MapView.fit(pts);
+    });
+  }
+  const precisionText = p => {
+    const how = p.precision === '門牌' ? '定位到門牌' : p.precision === '道路' ? '只定位到路段，請拖曳圖釘校正' :
+                p.precision === '手動校正' ? '已手動校正位置' : p.precision === '地標' ? '地標座標' : '定位到地點';
+    return `<b>${esc(p.addr || p.name)}</b>・${how}（${esc(p.src)}）`;
+  };
+  function whereBlock(which) {
+    const p = S[which], label = which === 'from' ? '出發' : '抵達';
+    const list = S.sugg[which];
+    return `<div class="where"><span class="dot${which === 'to' ? ' d' : ''}" aria-hidden="true"></span>
+      <div style="min-width:0"><span class="lbl">${label}</span>
+        <div class="addr-in"><input id="${which}Q" data-q="${which}" value="${esc(S.q[which] || p.name)}" placeholder="輸入地址或地名，例如：西屯區惠來路二段101號" autocomplete="off" aria-label="${label}地址">
+          <button data-act="find" data-arg="${which}">${S.busy[which] ? '定位中…' : '定位'}</button></div>
+        <div class="addr-meta">${S.msg[which] ? esc(S.msg[which]) : precisionText(p)}</div>
+        ${list.length ? `<ul class="sugg">${list.map((r, i) => `<li><button data-act="pickAddr" data-arg="${which}|${i}">${esc(r.name)}<small>${esc(r.addr || '')}・${esc(r.precision)}・${esc(r.src)}</small></button></li>`).join('')}</ul>` : ''}
+        <div class="presets" style="margin-top:6px">${PRESETS.map(pp => `<button data-act="preset" data-arg="${which}|${pp.id}">${esc(pp.name)}</button>`).join('')}</div>
+      </div></div>`;
+  }
+  const rowHtml = (p, best) => {
+    const hyp = MODES[p.mode].hyp;
+    const diff = hyp && p.vsNow != null ? (p.vsNow > 0 ? `<em class="gain">快 ${p.vsNow} 分</em>` : '<span class="same">時間相同</span>') : '';
+    return `<button class="row${p === best ? ' best' : ''}${hyp ? ' hyp' : ''}" data-act="go" data-arg="${p.mode}">
+      <span class="ic" aria-hidden="true">${hyp ? '' : MODES[p.mode].icon}</span>
+      <span><span class="nm">${hyp ? '<span class="tagp">何欣純政見版</span>' : esc(MODES[p.mode].name)}${p === best ? '<small>最快</small>' : ''}${!hyp && p.min > 150 ? '<small>太遠</small>' : ''}</span>
+        <span class="sub">${fmt(p.depart)} 出發・${money(p.cost)}${p.tt && !hyp ? '・<span class="k tt">TomTom 預測</span>' : ''}${baseOf(p.mode) === 'transit' ? `・${p.legs.map(l => LEG[l.mode].icon).join(' ')}` : ''}${diff ? `・${diff}` : ''}</span></span>
+      <span class="min">${p.min}<span>分</span></span></button>`;
+  };
+  function rows() {
+    if (!S.plans) return '<p class="fine">計算中…</p>';
+    if (!S.plans.length) return '<p class="fine">出發地和目的地要不一樣。</p>';
+    const now = S.plans.filter(p => !MODES[p.mode].hyp), pol = S.plans.filter(p => MODES[p.mode].hyp);
+    const best = now.slice().sort((a, b) => a.min - b.min)[0], bestP = pol.slice().sort((a, b) => a.min - b.min)[0];
+    const groups = BASE_MODES.map(m => S.plans.filter(p => baseOf(p.mode) === m)).filter(g => g.length);
+    return `<p class="lead">現況最快是<em>${MODES[best.mode].name}</em> ${best.min} 分鐘，<em>${fmt(best.depart)}</em> 前出發就能 ${esc(S.time)} 到。</p>
+      <div class="rows">${groups.map(g => `<div class="pair">${g.map(p => rowHtml(p, p === best || p === bestP ? p : null)).join('')}</div>`).join('')}</div>
+      ${ttNote()}${conclusion(now, pol)}`;
+  }
+  /** 結論：比較現況與政見版（依遊戲假設試算） */
+  function conclusion(now, pol) {
+    const best = now.slice().sort((a, b) => a.min - b.min)[0], bestP = pol.slice().sort((a, b) => a.min - b.min)[0];
+    const gains = pol.filter(p => p.vsNow > 0).sort((a, b) => b.vsNow - a.vsNow);
+    const trips = 500;   // 一年約 250 個工作天、每天來回
+    const link = `<a class="btn primary island" href="https://taichung-island.netlify.app/" target="_blank" rel="noopener">到「台中政策島」看何欣純的完整政見 →</a>`;
+    if (!best || !bestP) return '';
+    const car = now.find(p => p.mode === 'car'), tP = pol.find(p => p.mode === 'transitP');
+    let h = '<div class="sec concl"><span class="lbl">模擬結論</span>';
+    if (gains.length) {
+      const g = gains[0], hours = Math.round(g.vsNow * trips / 60);
+      const fastSave = best.min - bestP.min;
+      h += `<p class="big">何欣純的交通政見，讓這段通勤${fastSave > 0 ? `最快從 <b>${best.min}</b> 分縮短到 <b>${bestP.min}</b> 分` : `的${esc(MODES[g.mode.slice(0, -1)].name)}快 <b>${g.vsNow}</b> 分`}。</p><ul>`;
+      gains.slice(0, 4).forEach(p => { h += `<li>${MODES[baseOf(p.mode)].icon} ${esc(MODES[baseOf(p.mode)].name)}：快 ${p.vsNow} 分${p.costDiff > 0 ? `、每趟省 ${money(p.costDiff)}` : ''}</li>`; });
+      h += `</ul><p>以一年 250 個工作天、每天來回計算，${esc(MODES[baseOf(g.mode)].name)}一年可以省下約 <b>${hours}</b> 小時`;
+      const money2 = pol.reduce((m, p) => Math.max(m, (p.costDiff || 0) * trips), 0);
+      if (money2 > 0) h += `，花費最多可省約 <b>${money(money2)}</b>`;
+      if (car && tP && tP.min <= car.min + 10 && car.cost > tP.cost) h += `；政見版大眾運輸和開車差不到 10 分鐘，改搭每趟還省 ${money(Math.round(car.cost - tP.cost))}`;
+      h += `。</p><p class="cheer">捷運路網、公車改革、道路瓶頸與停車一起推動，讓台中通勤更快、更省。這就是何欣純交通政見的價值！</p>`;
+    } else {
+      h += `<p class="big">這段路線在模擬中差異不大，但何欣純的交通政見不只省時間。</p>
+        <p>公車 App 準點、班次取消自動替代、危險路口改善、騎樓與停車管理，讓每天的通勤更準時、更安全、更安心。</p>`;
+    }
+    h += `${link}<p class="fine">結論依本遊戲的假設試算（見「政見清單」與「資料說明」），不是官方評估；實際效果依建設進度而定。</p></div>`;
+    return h;
+  }
+  const hm = d => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  function ttNote() {
+    const car = S.plans.find(p => p.tt);
+    let h = '';
+    if (car) {
+      if (car.ttAt.shifted) h += `<p class="fine">你選的時間已過，開車與機車改用之後同星期同時段（${esc(car.ttAt.label)}）的 TomTom 預測。</p>`;
+      if (S.liveMsg) h += `<p class="fine">即時路況：${esc(S.liveMsg)}</p>`;
+      return h;
+    }
+    if (S.ttLoading) h += '<p class="fine">正在向 TomTom 查詢預測車流…（第一次使用時，Claude 會請你允許）</p>';
+    else if (S.ttMsg) h += `<p class="fine">TomTom：${esc(S.ttMsg)}${TomTom.state.state !== 'none' ? ' <button class="linkbtn" data-act="ttRetry">重新查詢</button>' : ''}</p>`;
+    return h;
+  }
+  function showLive(i) {
+    const x = S.live[i]; if (!x) return;
+    MapView.bubble('live', x.at, `<div class="bub event"><button class="x" data-act="closeBub" aria-label="關閉">×</button>
+      <h4><span class="k news">即時路況</span>${LIVE_ICON(x.cat)} ${esc(x.catName)}</h4>
+      <p>${esc(x.from)}${x.to && x.to !== x.from ? ` → ${esc(x.to)}` : ''}${x.m ? `，約 ${x.m} 公尺` : ''}${x.events.length ? `：${esc(x.events.join('、'))}` : ''}</p>
+      <p class="fine">${hm(S.liveAt)} 查詢的「現在」路況，不代表你選的時段。</p><div class="src">來源：TomTom Traffic</div></div>`);
+  }
+  const nPolicy = POLICY_LIST.reduce((k, c) => k + c.items.length, 0);
+  function policySec() {
+    return `<div class="sec"><button class="btn primary polbtn" data-act="policyList">📋 何欣純交通政見（${nPolicy} 項）</button></div>`;
+  }
+  const srcHtml = keys => keys.length ? keys.map(k => `<a href="${esc(SRC[k][1])}" target="_blank" rel="noopener">${esc(SRC[k][0])}</a>`).join('、') : '何欣純政見文字（未找到報導連結）';
+  function policyList() {
+    $('#sheetBox').innerHTML = `<button class="x sheet-x" data-act="closeInfo" aria-label="關閉">×</button><h2>何欣純交通政見</h2>
+      <p class="fine">點每一項展開內容與來源。標「政見版」的項目，會用在每種交通方式的「何欣純政見版」計算。</p>
+      <label class="switch" style="margin:10px 0"><input type="checkbox" data-act="togglePolicy" ${S.policy ? 'checked' : ''}><span>在地圖上顯示政見示意線<small>線條只是示意，不是實際規劃路線。</small></span></label>
+      ${POLICY_LIST.map(c => `<h3>${esc(c.cat)}</h3>${c.items.map(it => `<details class="pol">
+        <summary>${esc(it.title)}${it.sim ? '<span class="k sim">政見版</span>' : ''}${it.map ? '<span class="k mapk">地圖</span>' : ''}</summary>
+        <div class="pol-body"><p>${esc(it.text)}</p>
+          ${it.map ? (() => { const m = POLICY_MAP.find(x => x.id === it.map); return m && m.status ? `<p class="fine">目前狀態：${esc(m.status)}</p>` : ''; })() : ''}
+          ${it.sim ? `<p class="fine simline">${esc(it.sim)}（遊戲假設）</p>` : ''}
+          <p class="src">來源：${srcHtml(it.src)}</p>
+          ${it.map ? `<button class="linkbtn" data-act="policyOnMap" data-arg="${it.map}">在地圖上看</button>` : ''}</div></details>`).join('')}`).join('')}
+      <p style="margin-top:16px">${`<a class="btn primary island" href="https://taichung-island.netlify.app/" target="_blank" rel="noopener">到「台中政策島」看何欣純的完整政見 →</a>`}</p>`;
+    $('#sheet').hidden = false;
+  }
+  function policyOnMap(id) { $('#sheet').hidden = true; S.policy = true; redrawMap(true); setTimeout(() => showPolicy(id), 50); }
+  /** 點選任一方式：先跳出確認視窗 */
+  function askGo(mode) {
+    const p = S.plans && S.plans.find(x => x.mode === mode); if (!p) return;
+    const hyp = MODES[mode].hyp;
+    MapView.whenReady(() => { MapView.drawRoute(p.legs); MapView.fit([S.from, S.to].concat(p.legs.flatMap(l => l.pts))); });
+    $('#sheetBox').innerHTML = `<h2>開始模擬通勤</h2>
+      <p class="lead">${MODES[baseOf(mode)].icon} ${esc(MODES[mode].name)}</p>
+      <dl class="kv"><div><dt>出發</dt><dd>${fmt(p.depart)}</dd></div><div><dt>時間</dt><dd>${p.min} 分</dd></div><div><dt>花費</dt><dd>${money(p.cost)}</dd></div></dl>
+      <p class="fine">${esc(S.from.name)} → ${esc(S.to.name)}，${esc(S.time)} 要到</p>
+      ${hyp ? `<p class="fine">何欣純政見版：假設相關交通政見都已上路${p.vsNow > 0 ? `，比現況快 ${p.vsNow} 分` : ''}。</p>` : ''}
+      <div class="btns" style="margin-top:14px"><button class="btn primary" data-act="goNow" data-arg="${mode}">開始模擬通勤</button><button class="btn" data-act="closeInfo">取消</button></div>`;
+    $('#sheet').hidden = false;
+  }
+  function renderPlan() {
+    const d = new Date(S.date + 'T00:00:00');
+    return `<div class="sec">${whereBlock('from')}${whereBlock('to')}
+      <div class="when"><label for="date">日期・星期${WEEK[d.getDay()]}<input type="date" id="date" data-act="date" value="${S.date}"></label>
+        <label for="time">幾點要到<input type="time" id="time" data-act="time" value="${S.time}"></label></div></div>
+      ${policySec()}<div class="sec">${rows()}</div>`;
+  }
+  const logHtml = log => log.length ? `<div class="log">${log.map(x => `<div class="${x.kind === 'event' ? 'ev' : x.kind}">${x.html}</div>`).join('')}</div>` : '';
+  function renderRun(run) {
+    return `<p class="lead">${MODES[run.plan.mode].icon} ${esc(MODES[run.plan.mode].name)}，通勤中</p>
+      <ol class="legs">${run.legs.map((l, i) => `<li class="${i < run.legIdx ? 'done' : i === run.legIdx ? 'now' : ''}"><span>${LEG[l.mode].icon}</span>
+        <span>${esc(LEG[l.mode].name)}${l.label ? `　${esc(l.label)}` : ''}<br><span class="fine">${esc(l.note || '')}</span></span>
+        <span class="t">${Math.round(l.wait + l.min)} 分</span></li>`).join('')}</ol>
+      ${run.pending ? `<div class="choices"><span class="lbl">${esc(INCIDENTS[run.pending.ev.key].title)}・怎麼辦</span>${run.pending.opts.map((o, k) => `<button class="btn" data-act="choose" data-arg="${k}">${esc(o.label)}</button>`).join('')}</div>` : ''}
+      ${logHtml(run.log)}
+      <button class="btn" data-act="back">停止，回到比較</button>`;
+  }
+  function renderDone(run) {
+    const arrive = run.plan.arrive + run.delay, late = Math.round(arrive - run.plan.arrive);
+    return `<div class="result${late > 0 ? ' late' : ''}"><div class="big">${late > 0 ? `遲到 ${late} 分鐘` : '準時抵達'}</div>
+        <p class="fine">${fmt(run.plan.depart)} 出發，${fmt(arrive)} 抵達（目標 ${esc(S.time)}）</p>
+        <dl class="kv"><div><dt>方式</dt><dd>${esc(MODES[run.plan.mode].name)}</dd></div>
+          <div><dt>時間</dt><dd>${Math.round(run.plan.min + run.delay)} 分</dd></div><div><dt>花費</dt><dd>${money(run.plan.cost + run.extraCost)}</dd></div></dl></div>
+      ${logHtml(run.log) || '<p class="fine">一路順暢，沒有遇到意外。</p>'}
+      <div class="btns"><button class="btn primary" data-act="goNow" data-arg="${run.plan.mode}">再跑一次</button><button class="btn" data-act="back">換一種方式</button></div>`;
+  }
+  function render() {
+    const run = Sim.run;
+    $('#panel').innerHTML = S.view === 'plan' || !run ? renderPlan() : run.done ? renderDone(run) : renderRun(run);
+    document.querySelector('.mapbox').classList.toggle('running', S.view === 'run');
+    const hud = $('#hud');
+    if (S.view === 'run' && run) {
+      const eta = run.plan.arrive + run.delay, L = run.legs[Math.min(run.legIdx, run.legs.length - 1)];
+      hud.hidden = false;
+      hud.innerHTML = `<span class="clock">${fmt(run.clock)}</span><span>${LEG[L.mode].icon} ${esc(LEG[L.mode].name)}</span>
+        <span>預計 ${fmt(eta)} 到・目標 ${esc(S.time)}</span>${run.delay > 0 ? `<span class="k news">延誤 +${Math.round(run.delay)} 分</span>` : ''}`;
+    } else hud.hidden = true;
+  }
+  const ui = { onUpdate: () => render(), onIncident: () => render(), onFinish: () => render() };
+  async function go(mode) {
+    $('#sheet').hidden = true;
+    let p = S.plans && S.plans.find(x => x.mode === mode); if (!p) return;
+    if (S.going) return;
+    const bus = p.legs.filter(l => (l.mode === 'bus' || (l.mode === 'walk' && km(l.from, l.to) > 0.25)) && l.dashed).slice(0, 5);
+    if (bus.length && S.view === 'plan') {
+      S.going = true; $('#panel').insertAdjacentHTML('afterbegin', '<p class="fine" id="goWait">正在查沿路的道路…</p>');
+      const m = await TomTom.init();
+      const get = l => m ? TomTom.path('slow', l.from, l.to) : Routing.get(l.mode === 'walk' ? 'foot' : 'car', l.from, l.to);
+      await Promise.race([Promise.all(bus.map(l => Promise.resolve(get(l)).catch(() => null))), new Promise(r => setTimeout(r, 6000))]);
+      S.going = false; S.plans = plan(); p = S.plans.find(x => x.mode === mode) || p;
+    }
+    S.view = 'run'; p.arrivePt = S.to; MapView.unbubble('live');
+    Sim.start(p, ui); render();
+  }
+  function back() { Sim.stop(); S.view = 'plan'; render(); redrawMap(); }
+  async function find(which) {
+    const el = $(`#${which}Q`); const q = (el && el.value || '').trim(); if (!q) return;
+    S.q[which] = q; S.busy[which] = true; S.msg[which] = ''; S.sugg[which] = []; render();
+    const loc = Geocoder.local(q);
+    const { results } = await Geocoder.search(q);
+    S.busy[which] = false;
+    S.sugg[which] = results.concat(loc).slice(0, 8);
+    const why = Geocoder.state.errors.join('；');
+    if (!results.length) S.msg[which] = loc.length
+      ? `沒有查到地址（${why}）。以下是相符的常用地點。`
+      : `找不到「${q}」（${why}）。可以換個寫法（例如加上區名），或改選常用地點。`;
+    render();
+  }
+  function pickAddr(arg) {
+    const [which, i] = arg.split('|'); const r = S.sugg[which][Number(i)]; if (!r) return;
+    S[which] = { ...r, id: `${which}_${Date.now()}` }; S.sugg[which] = []; S.msg[which] = ''; S.q[which] = r.name;
+    compute();
+  }
+  function preset(arg) {
+    const [which, id] = arg.split('|'); const p = PLACES.find(x => x.id === id); if (!p) return;
+    S[which] = asPlace(p); S.sugg[which] = []; S.msg[which] = ''; S.q[which] = p.name; compute();
+  }
+  function movePin(which, ll) {
+    if (S.view !== 'plan') return;
+    S[which] = { ...S[which], ...ll, precision: '手動校正', addr: `${S[which].name} 附近（緯度 ${ll.lat.toFixed(5)}、經度 ${ll.lng.toFixed(5)}）` };
+    compute();
+    const moved = S[which];
+    TomTom.init().then(m => m && TomTom.reverse(ll)).then(addr => {
+      if (addr && S[which] === moved) { S[which] = { ...moved, addr, src: 'TomTom 反查' }; S.q[which] = addr; render(); }
+    }).catch(() => {});
+  }
+  function showPolicy(id, at) {
+    const p = POLICY_MAP.find(x => x.id === id); if (!p) return;
+    const pts = p.pts.map(k => PT[k]);
+    const pos = at || pts[Math.floor((pts.length - 1) / 2)];
+    const html = `<div class="bub ${p.kind === 'exist' ? 'project' : p.kind}"><button class="x" data-act="closeBub" aria-label="關閉">×</button>
+      <span class="k ${p.kind}">${KIND_LABEL[p.kind]}</span><h4>${esc(p.title)}</h4>
+      ${p.policy ? `<p>${esc(p.policy)}</p>` : ''}${p.status ? `<p>${esc(p.status)}</p>` : ''}
+      <p class="fine">${esc(p.note)}${pts.length > 1 ? `（${pts.map(q => q.name).join(' → ')}）` : ''}</p>
+      <div class="src">來源：${p.src.map(k => `<a href="${esc(SRC[k][1])}" target="_blank" rel="noopener">${esc(SRC[k][0])}</a>`).join('、')}</div></div>`;
+    MapView.bubble('policy', pos, html);
+  }
+  function ttStatus() {
+    const t = TomTom.state;
+    if (t.state === 'ok') return `已連線（本次 ${t.calls} 次查詢${t.lastRoute ? `；預測車流 ${esc(t.lastRoute.at.label)}` : ''}${t.lastTraffic ? `；即時路況 ${hm(t.lastTraffic.at)}，台中這一帶共 ${t.lastTraffic.total} 件、沿途 ${t.lastTraffic.n} 件` : ''}）`;
+    if (t.state === 'error') return esc(t.msg);
+    if (t.state === 'none') return `未使用（${esc(t.msg || '沒有連接器')}）；開車改用模擬尖峰係數`;
+    return t.state === 'ready' ? '可用，等待第一次查詢' : '檢查中';
+  }
+  function info() {
+    const st = MapView.st;
+    const baseName = { emap: '臺灣通用電子地圖', osm: 'OpenStreetMap', deco: '裝飾底圖（圖磚無法載入）' }[st.base] || '—';
+    $('#sheetBox').innerHTML = `<h2>資料說明</h2>
+      <p class="fine">這是遊戲。地點、車站與政見端點是真實的；時間、花費、意外事件多為模擬，用來比較交通方式，不是即時交通資訊。</p>
+      <h3>地圖狀態</h3><div class="status-grid">
+        <b>Leaflet</b><span>${st.js === 'ok' ? `已載入（${(LeafletLoader.state.src || '').split('/')[2] || '—'}）` : st.js === 'failed' ? `未載入（已嘗試 ${LeafletLoader.state.failed.join('、')}）` : '載入中'}</span>
+        <b>地圖容器</b><span>${{ ok: '已初始化', failed: `失敗：${esc(st.error)}`, skipped: '改用示意圖', pending: '等待中' }[st.container]}</span>
+        <b>底圖</b><span>${st.tiles === 'ok' ? `${baseName}（${st.tilesLoaded} 張）` : st.tiles === 'skipped' ? '不適用（示意圖）' : baseName}</span>
+        <b>地址定位</b><span>${Geocoder.state.last ? `${Geocoder.state.last} 可用` : Geocoder.state.errors.length ? esc(Geocoder.state.errors.join('；')) : '尚未使用'}</span>
+        <b>TomTom</b><span>${ttStatus()}</span>
+        <b>道路路徑</b><span>${Routing.state.ok ? `OSRM 已連線（${Routing.state.ok} 筆）` : Routing.state.failed ? `OSRM ${esc(Routing.state.msg)}；改用直線×1.35 估算，地圖畫虛線` : '尚未查詢'}</span></div>
+      <h3>TomTom 怎麼接上</h3>
+      <p class="fine">Claude 頁面的安全規則禁止網頁直接連外，所以地址、開車路線與即時路況改由你在 claude.ai 接上的「TomTom Maps」連接器查詢：第一次查詢時 Claude 會請你允許，頁面看不到任何金鑰。沒有連接器（例如在一般瀏覽器開啟）時，改用 Photon／Nominatim／OSRM 與模擬估算。底圖圖磚仍無法在 Claude 中載入，所以底圖是裝飾用街廓；地點、路線座標是真實的。</p>
+      <h3>怎麼算</h3><ul>
+        <li>開車（有 TomTom 時）：TomTom 依「歷史車流」預測你指定日期、時刻抵達的車程與路線，再加找車位與步行（模擬）。所選時間已過時，改用之後同星期同時段。</li>
+        <li>機車：TomTom 避開國道與收費道路的路線（台灣機車不能上國道），依預測車流；塞車影響約為汽車的一半（估算）。</li>
+        <li>腳踏車、走路、公車段：一般瀏覽器用 OSRM 的步行／腳踏車／汽車路網；在 Claude 中用 TomTom「最短、避開國道」的道路路徑（汽車路網，可能不含步道、自行車道）。速度另外估算：步行 4.6 km/h、腳踏車 14 km/h。都查不到時才用直線距離×繞行係數，地圖畫虛線。</li>
+        <li>沿途即時路況：TomTom Traffic 回報的現在的事故、壅塞、封路、施工，只列距離路線 300 公尺內的；遊戲中遇到時的延誤分鐘為估算。</li>
+        <li>沒有 TomTom 時：尖峰路況用模擬係數（平日 8 點、18 點最塞），開車＝道路距離 ÷（時速 38 ÷ 係數）＋找車位。</li>
+        <li>大眾運輸：在綠線 18 站、台鐵沙鹿／大慶／臺中站與起訖點間找最快組合；候車＝班距÷2（班距為模擬）；公車以一般市區公車估算，未指定路線。</li>
+        <li>綠線票價：起價 $20、每 2 km 加 $5、上限 $50（Wikipedia 引 2020 年資料）。其他票價、油錢、停車費為模擬。</li>
+        <li>何欣純政見版（遊戲假設，非官方評估）：藍線通車（臺中港、沙鹿車站、東海大學、市政府站一帶、臺中車站；時速 ${BLUE_SIM.kmh} km、班距 ${BLUE_SIM.headway} 分）；橘線延伸清水站通車（清水車站、臺中機場、臺中車站；時速 ${POLICY_SIM.orange.kmh} km、班距 ${POLICY_SIM.orange.headway} 分）；公車班距縮短三分之一；海線台鐵班距減半；開車、機車塞車延誤減少 30%；汽車找車位時間減半、停車費 $${POLICY_SIM.carParkFee}；機車停車 4 → 2 分；走路、騎腳踏車快 5%、借還車 3 → 2 分；幽靈公車、捷運故障、塞車事件機率降低。</li></ul>
+      <h3>政見與建設（只引用何欣純政見）</h3><ul>${POLICY_MAP.map(p => `<li><span class="k ${p.kind}">${KIND_LABEL[p.kind]}</span> ${esc(p.title)}：${p.src.map(k => `<a href="${esc(SRC[k][1])}" target="_blank" rel="noopener">${esc(SRC[k][0])}</a>`).join('、')}</li>`).join('')}</ul>
+      <h3>意外事件的新聞依據</h3><ul>${[...NEWS.ghost, ...NEWS.mrt, ...NEWS.drug].map(n => `<li><a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.pub)} ${n.date}：${esc(n.title)}</a></li>`).join('')}</ul>
+      <h3>地點座標</h3><p class="fine">綠線 18 站與地標：各 Wikipedia 條目與臺中觀光旅遊網（2026-10-24 查證）。地址搜尋：TomTom（連接器）、Photon、Nominatim（OpenStreetMap）。底圖：國土測繪中心臺灣通用電子地圖、OpenStreetMap。</p>
+      <p style="margin-top:16px"><button class="btn primary" data-act="closeInfo">知道了</button></p>`;
+    $('#sheet').hidden = false;
+  }
+  return { S, render, compute, go, askGo, back, find, pickAddr, preset, movePin, showPolicy, showLive, policyList, policyOnMap, info, redrawMap };
+})();
+
+/* ---------- 輸入（捕獲階段，避免被地圖攔截） ---------- */
+const ACT = {
+  go: a => UI.askGo(a), goNow: a => UI.go(a), policyList: () => UI.policyList(), policyOnMap: a => UI.policyOnMap(a), back: () => UI.back(), choose: a => Sim.choose(Number(a)), info: () => UI.info(),
+  closeInfo: () => { $('#sheet').hidden = true; }, find: a => UI.find(a), pickAddr: a => UI.pickAddr(a), preset: a => UI.preset(a),
+  policy: (a, el, at) => UI.showPolicy(a, at), live: a => UI.showLive(Number(a)), ttRetry: () => UI.compute(), fitPolicy: () => { UI.S.policy = true; UI.render(); UI.redrawMap(true); },
+  closeBub: (a, el) => { const host = el.closest('[data-bub]'); const b = el.closest('.bub'); if (b) b.remove(); if (host) host.remove(); },
+};
+let lastKey = '', lastAt = 0;
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act; if (!ACT[act] || el.tagName === 'SELECT' || el.tagName === 'INPUT') return;
+  e.preventDefault(); e.stopPropagation();
+  const key = `${act}:${el.dataset.arg || ''}`, now = Date.now();
+  if (key === lastKey && now - lastAt < 350) return;           // 防止連點
+  lastKey = key; lastAt = now;
+  ACT[act](el.dataset.arg, el);
+}, true);
+document.addEventListener('change', e => {
+  const el = e.target, S = UI.S;
+  if ((el.dataset.act === 'date' || el.dataset.act === 'time') && el.value) { S[el.dataset.act] = el.value; UI.compute(); }
+  if (el.dataset.act === 'togglePolicy') { S.policy = el.checked; UI.redrawMap(); }
+});
+document.addEventListener('input', e => { const w = e.target.dataset && e.target.dataset.q; if (w) UI.S.q[w] = e.target.value; });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') $('#sheet').hidden = true;
+  const w = e.target.dataset && e.target.dataset.q;
+  if (e.key === 'Enter' && w) { e.preventDefault(); UI.find(w); }
+});
+$('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') $('#sheet').hidden = true; });
+
+/* 啟動 */
+MapView.onPin = (which, ll) => UI.movePin(which, ll);
+UI.compute();
+MapView.init().then(() => UI.redrawMap());
+
+</script>
