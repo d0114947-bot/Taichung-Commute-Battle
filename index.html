@@ -29,6 +29,8 @@ html[data-fs="s"]{--fs:.9} html[data-fs="m"]{--fs:1.12} html[data-fs="l"]{--fs:1
 .tour-tip .step{font-size:calc(11px * var(--fs));letter-spacing:.2em;color:var(--muted)}
 .tour-tip .row2{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
 .tour-tip button{font-size:calc(13px * var(--fs))}
+.tour-tip .tour-end{width:100%;text-align:center;font-size:calc(17px * var(--fs));padding:12px 16px;background:var(--ink);color:#fff;border-color:var(--ink);letter-spacing:.12em}
+.tour-hint{margin:8px 0 0;font-size:calc(12px * var(--fs));color:var(--muted)}
 .tour-finger{position:fixed;z-index:2750;font-size:calc(34px * var(--fs));pointer-events:none;animation:tap 1s ease-in-out infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
 @keyframes tap{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 @media (prefers-reduced-motion:reduce){.tour-finger{animation:none}}
@@ -87,8 +89,8 @@ a:hover{text-decoration-color:var(--accent)}
 .stage{display:grid;grid-template-columns:minmax(330px,420px) minmax(0,1fr);gap:28px;flex:1;min-height:0}
 @media (max-width:920px){.stage{grid-template-columns:1fr;gap:20px}}
 .panel{display:flex;flex-direction:column;gap:22px;min-width:0}
-.mapbox{position:relative;border:1px solid var(--hair);min-height:620px;background:var(--tile-bg);overflow:hidden}
-@media (max-width:920px){.mapbox{min-height:440px;order:-1}}
+.mapbox{position:sticky;top:12px;align-self:start;border:1px solid var(--hair);height:min(calc(100vh - 24px),820px);min-height:480px;background:var(--tile-bg);overflow:hidden}
+@media (max-width:920px){.mapbox{position:relative;top:auto;height:min(62vh,560px);min-height:360px;order:-1}}
 #map{position:absolute;inset:0;overflow:hidden}
 
 /* ---------- 通勤單 ---------- */
@@ -1043,6 +1045,13 @@ const MapView = (() => {
       const map = this.map = L.map('map', { zoomControl: true, attributionControl: true, zoomSnap: 0.5 }).setView([24.18, 120.62], 11);
       map.zoomControl.setPosition('topright');
       if (typeof map.on === 'function') map.on('zoomend moveend', declutterSoon);
+      if (window.ResizeObserver) {   // 版面變動（字體大小、手機轉向）時，地圖重新量尺寸並保持原本的範圍
+        let t = 0, last = '';
+        new ResizeObserver(() => { clearTimeout(t); t = setTimeout(() => {
+          const el = document.getElementById('map'), k = `${el.clientWidth}x${el.clientHeight}`; if (k === last) return; last = k;
+          map.invalidateSize({ pan: false }); if (this.lastFit && !(Sim.run && !Sim.run.done)) this.fit(this.lastFit);
+        }, 120); }).observe(document.getElementById('map'));
+      }
       map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
       ['policy', 'base', 'route', 'live', 'marks', 'bubbles'].forEach(k => { this.g[k] = L.layerGroup().addTo(map); });
       this.tryBase(0);
@@ -1110,7 +1119,12 @@ const MapView = (() => {
       this.bubbles.set(id, m);
     },
     unbubble(id) { const m = this.bubbles.get(id); if (m) { this.g.bubbles.removeLayer(m); this.bubbles.delete(id); } },
-    fit(pts) { if (pts.length) this.map.fitBounds(L.latLngBounds(pts.map(this.ll)).pad(0.15), { maxZoom: 15 }); },
+    fit(pts) {
+      if (!pts.length) return;
+      this.lastFit = pts;
+      if (typeof this.map.invalidateSize === 'function') this.map.invalidateSize({ pan: false });
+      this.map.fitBounds(L.latLngBounds(pts.map(this.ll)).pad(0.08), { maxZoom: 15, animate: false });
+    },
     focus(p, z) { const cur = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 0; this.map.setView(this.ll(p), Math.max(cur, z), { animate: !reduceMotion }); },
     pan(p) { if (!this.map.getBounds().pad(-0.25).contains(this.ll(p))) this.map.panTo(this.ll(p), { animate: !reduceMotion }); },
   };
@@ -1230,7 +1244,7 @@ const MapView = (() => {
     hideToken() { if (impl) impl.hideToken(); },
     bubble(id, p, html) { if (impl) impl.bubble(id, p, html); },
     unbubble(id) { if (impl) impl.unbubble(id); },
-    fit(pts) { if (impl) impl.fit(pts); },
+    fit(pts) { MapView.lastFit = pts; if (impl) impl.fit(pts); },
     focus(p, z) { if (impl) { if (impl.focus) impl.focus(p, z); } },
     pan(p) { if (impl) impl.pan(p); },
   };
@@ -1325,7 +1339,8 @@ const Sim = (() => {
     run = { plan, legs, events, ui, legIdx: 0, legT: 0, clock: plan.depart, delay: 0, extraCost: 0, paused: false,
             seenNotes: new Set(), log: [], raf: 0, last: 0, firedEvents: new Set() };
     MapView.drawRoute(plan.legs);
-    MapView.focus(legs[0].pts[0], 14);
+    const O = plan.legs[0].from, D = plan.arrivePt || plan.legs[plan.legs.length - 1].to;
+    MapView.fit([O, D].concat(plan.legs.flatMap(l => l.pts)));
     ui.onUpdate(run);
     run.last = performance.now();
     run.raf = requestAnimationFrame(tick);
@@ -1573,7 +1588,7 @@ const UI = (() => {
   /** 地圖不在畫面內時（手機上地圖在上方），捲動到地圖 */
   function showMap() {
     const box = document.querySelector('.mapbox'), r = box.getBoundingClientRect();
-    if (r.top < -40 || r.top > window.innerHeight * 0.5) box.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    if (r.top < -10 || r.bottom > window.innerHeight + 10) box.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
   /** 點選任一方式：先跳出確認視窗 */
   function askGo(mode) {
@@ -1613,7 +1628,8 @@ const UI = (() => {
         <dl class="kv"><div><dt>方式</dt><dd>${esc(MODES[run.plan.mode].name)}</dd></div>
           <div><dt>時間</dt><dd>${Math.round(run.plan.min + run.delay)} 分</dd></div><div><dt>花費</dt><dd>${money(run.plan.cost + run.extraCost)}</dd></div></dl></div>
       ${logHtml(run.log) || '<p class="fine">一路順暢，沒有遇到意外。</p>'}
-      <div class="btns"><button class="btn primary" data-act="goNow" data-arg="${run.plan.mode}">再跑一次</button><button class="btn" data-act="back">換一種方式</button></div>`;
+      <div class="btns"><button class="btn primary" data-act="goNow" data-arg="${run.plan.mode}">再跑一次</button><button class="btn" data-act="back">換一種方式</button></div>
+      <a class="btn primary island" href="https://taichung-island.netlify.app/" target="_blank" rel="noopener">到「台中政策島」看何欣純的完整政見 →</a>`;
   }
   function render() {
     const run = Sim.run;
@@ -1642,7 +1658,7 @@ const UI = (() => {
       S.going = false; S.plans = plan(); p = S.plans.find(x => x.mode === mode) || p;
     }
     S.view = 'run'; p.arrivePt = S.to; MapView.unbubble('live');
-    Sim.start(p, ui); render(); showMap();
+    showMap(); Sim.start(p, ui); render();
   }
   function back() { Sim.stop(); S.view = 'plan'; render(); redrawMap(); }
   async function find(which) {
@@ -1785,7 +1801,9 @@ const Tour = (() => {
     }
     tip = document.createElement('div'); tip.className = 'tour-tip'; tip.setAttribute('role', 'dialog');
     tip.innerHTML = `<span class="step">使用教學 ${idx + 1} / ${STEPS.length}</span><h4>${st.title}</h4><p style="margin:0">${st.text}</p>
-      <div class="row2"><button class="linkbtn" data-act="tourSkip">結束教學</button>${st.btn ? `<button class="btn primary" data-act="tourNext">${st.btn}</button>` : ''}</div>`;
+      ${idx === STEPS.length - 1
+        ? '<div class="row2"><button class="btn primary tour-end" data-act="tourSkip">結束教學</button></div>'
+        : `<p class="tour-hint">點畫面其他地方，跳到下一步</p><div class="row2"><button class="linkbtn" data-act="tourSkip">結束教學</button>${st.btn ? `<button class="btn primary" data-act="tourNext">${st.btn}</button>` : ''}</div>`}`;
     finger = document.createElement('div'); finger.className = 'tour-finger'; finger.textContent = '👆'; finger.setAttribute('aria-hidden', 'true');
     document.body.append(tip, finger);
     place();
@@ -1807,6 +1825,13 @@ const Tour = (() => {
     tip.style.left = `${tx}px`; tip.style.top = `${ty}px`;
   }
   window.addEventListener('scroll', () => place(), { passive: true });
+  // 教學進行中：點目標與說明框以外的地方 → 不觸發底下的功能，直接跳到下一步
+  document.addEventListener('click', e => {
+    if (!active() || !tip || !$('#sheet').hidden) return;
+    if (tip.contains(e.target) || (hl && hl.contains(e.target))) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    go(idx + 1);
+  }, true);
   window.addEventListener('resize', () => refresh());
   function next() {
     const st = STEPS[idx];
