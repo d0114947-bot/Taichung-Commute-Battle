@@ -13,14 +13,31 @@
   --tile-bg:#fcfcfb; --tile-road:#efefec; --tile-block1:#f7f7f5; --tile-block2:#f4f4f2; --tile-block3:#f8f6f3; --tile-park:#eff3ec;
   --serif:'Noto Serif TC','Songti TC','PMingLiU',serif;
   --sans:'Noto Sans TC',-apple-system,'PingFang TC','Microsoft JhengHei',system-ui,sans-serif;
-  color-scheme:light;
+  color-scheme:light; --fs:1;
 }
+html[data-fs="s"]{--fs:.9} html[data-fs="m"]{--fs:1.12} html[data-fs="l"]{--fs:1.32}
+.tools{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.fsz{display:flex;align-items:center;gap:2px;font-size:calc(13px * var(--fs));color:var(--ink2)}
+.fsz>span{margin-right:6px;letter-spacing:.1em}
+.fsz button{border:1px solid var(--hair);background:#fff;min-width:34px;min-height:34px;cursor:pointer;color:var(--ink2);padding:2px 6px;line-height:1}
+.fsz button[data-arg="s"]{font-size:calc(12px * var(--fs))}.fsz button[data-arg="m"]{font-size:calc(15px * var(--fs))}.fsz button[data-arg="l"]{font-size:calc(18px * var(--fs))}
+.fsz button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
+/* 教學：聚光框＋說明框＋手指 */
+.tour-hl{position:relative;z-index:2600!important;outline:2px solid var(--accent);outline-offset:4px;border-radius:2px;background:#fff;box-shadow:0 0 0 9999px rgba(30,30,30,.38)}
+.tour-tip{position:fixed;z-index:2700;background:#fff;border:1px solid var(--ink);padding:14px 16px 12px;max-width:min(340px,calc(100vw - 32px));box-shadow:0 6px 24px rgba(0,0,0,.18);font-size:calc(14.5px * var(--fs));line-height:1.65}
+.tour-tip h4{margin:0 0 4px;font-family:var(--serif);font-size:calc(16px * var(--fs));letter-spacing:.06em}
+.tour-tip .step{font-size:calc(11px * var(--fs));letter-spacing:.2em;color:var(--muted)}
+.tour-tip .row2{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+.tour-tip button{font-size:calc(13px * var(--fs))}
+.tour-finger{position:fixed;z-index:2750;font-size:calc(34px * var(--fs));pointer-events:none;animation:tap 1s ease-in-out infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+@keyframes tap{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media (prefers-reduced-motion:reduce){.tour-finger{animation:none}}
 [hidden]{display:none!important}
-.live-mk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--danger);background:#fff;font-size:13px;line-height:1;display:grid;place-items:center;cursor:pointer;transform:translate(-50%,-50%);box-shadow:0 1px 3px rgba(0,0,0,.15)}
-.k.tt{font-size:10px;letter-spacing:.08em;color:var(--ink2);border:1px solid currentColor;border-radius:2px;padding:0 4px;margin-left:2px}
+.live-mk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--danger);background:#fff;font-size:calc(13px * var(--fs));line-height:1;display:grid;place-items:center;cursor:pointer;transform:translate(-50%,-50%);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.k.tt{font-size:calc(10px * var(--fs));letter-spacing:.08em;color:var(--ink2);border:1px solid currentColor;border-radius:2px;padding:0 4px;margin-left:2px}
 .live-note{color:var(--danger)}
 html,body{height:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:400;font-size:15px;line-height:1.7;margin:0;letter-spacing:.02em}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:400;font-size:calc(15px * var(--fs));line-height:1.7;margin:0;letter-spacing:.02em}
 *{box-sizing:border-box}
 button,input,select{font:inherit;color:inherit;letter-spacing:inherit}
 :focus-visible{outline:1.5px solid var(--accent);outline-offset:3px}
@@ -29,7 +46,7 @@ a:hover{text-decoration-color:var(--accent)}
 
 /* Leaflet 1.9.4 核心樣式（精簡內嵌） */
 .leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
-.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent;font-size:12px;background:var(--tile-bg)}
+.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent;font-size:calc(12px * var(--fs));background:var(--tile-bg)}
 .leaflet-tile,.leaflet-marker-icon{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
 .leaflet-marker-icon{display:block}
 .leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}
@@ -56,15 +73,15 @@ a:hover{text-decoration-color:var(--accent)}
 .leaflet-bar{border:1px solid var(--hair);background:#fff}
 .leaflet-bar a{background:#fff;color:var(--ink2);border-bottom:1px solid var(--hair);width:30px;height:30px;display:block;text-align:center;text-decoration:none;font:300 18px/30px var(--sans)}
 .leaflet-bar a:last-child{border-bottom:none}
-.leaflet-container .leaflet-control-attribution{background:rgba(255,255,255,.9);color:var(--muted);margin:0;padding:1px 6px;font-size:10.5px;line-height:1.5}
+.leaflet-container .leaflet-control-attribution{background:rgba(255,255,255,.9);color:var(--muted);margin:0;padding:1px 6px;font-size:calc(10.5px * var(--fs));line-height:1.5}
 .leaflet-control-attribution a{color:var(--ink2);text-decoration:none}
 
 /* ---------- 版面 ---------- */
 .app{display:flex;flex-direction:column;min-height:100%;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px}
 .top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--ink);margin-bottom:20px;flex-wrap:wrap}
-.top h1{font-family:var(--serif);font-weight:600;font-size:28px;letter-spacing:.12em;margin:0;line-height:1.2}
-.top .en{font-size:11px;letter-spacing:.32em;color:var(--muted);text-transform:uppercase;margin-left:12px}
-.top nav{display:flex;gap:18px;font-size:13px}
+.top h1{font-family:var(--serif);font-weight:600;font-size:calc(28px * var(--fs));letter-spacing:.12em;margin:0;line-height:1.2}
+.top .en{font-size:calc(11px * var(--fs));letter-spacing:.32em;color:var(--muted);text-transform:uppercase;margin-left:12px}
+.top nav{display:flex;gap:18px;font-size:calc(13px * var(--fs))}
 .linkbtn{background:none;border:0;padding:0;cursor:pointer;color:var(--ink2);text-decoration:underline;text-decoration-color:var(--hair);text-underline-offset:4px}
 .linkbtn:hover{text-decoration-color:var(--accent)}
 .stage{display:grid;grid-template-columns:minmax(330px,420px) minmax(0,1fr);gap:28px;flex:1;min-height:0}
@@ -76,132 +93,133 @@ a:hover{text-decoration-color:var(--accent)}
 
 /* ---------- 通勤單 ---------- */
 .sec{display:flex;flex-direction:column;gap:10px}
-.lbl{font-size:11.5px;letter-spacing:.24em;color:var(--muted)}
+.lbl{font-size:calc(11.5px * var(--fs));letter-spacing:.24em;color:var(--muted)}
 .where{display:grid;grid-template-columns:22px 1fr;column-gap:10px;row-gap:2px;align-items:start}
 .where .dot{width:10px;height:10px;border-radius:50%;margin:16px 0 0 5px;border:1.5px solid var(--ink)}
 .where .dot.d{background:var(--accent);border-color:var(--accent)}
 .where .rail{grid-column:1;width:1px;background:var(--hair);margin-left:10px;height:100%}
 .addr-in{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--hair);min-width:0}
 .addr-in:focus-within{border-bottom-color:var(--ink)}
-.addr-in input{flex:1;min-width:0;border:0;padding:9px 0;background:transparent;font-family:var(--serif);font-size:17px;outline:none}
+.addr-in input{flex:1;min-width:0;border:0;padding:9px 0;background:transparent;font-family:var(--serif);font-size:calc(17px * var(--fs));outline:none}
 .addr-in input::placeholder{color:#b8b8b8}
-.addr-in button{border:0;background:none;color:var(--accent);font-size:13px;cursor:pointer;padding:6px 0;white-space:nowrap}
-.addr-meta{font-size:12px;color:var(--muted);line-height:1.5;min-height:1.5em}
+.addr-in button{border:0;background:none;color:var(--accent);font-size:calc(13px * var(--fs));cursor:pointer;padding:6px 0;white-space:nowrap}
+.addr-meta{font-size:calc(12px * var(--fs));color:var(--muted);line-height:1.5;min-height:1.5em}
 .addr-meta b{font-weight:500;color:var(--ink2)}
 .sugg{list-style:none;margin:4px 0 0;padding:0;border:1px solid var(--hair);background:#fff}
 .sugg li+li{border-top:1px solid var(--hair2)}
-.sugg button{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;cursor:pointer;font-size:13.5px;line-height:1.45}
+.sugg button{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;cursor:pointer;font-size:calc(13.5px * var(--fs));line-height:1.45}
 .sugg button:hover{background:var(--hair2)}
-.sugg small{display:block;color:var(--muted);font-size:11.5px}
-.presets{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12.5px}
+.sugg small{display:block;color:var(--muted);font-size:calc(11.5px * var(--fs))}
+.presets{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:calc(12.5px * var(--fs))}
 .presets button{background:none;border:0;padding:0;color:var(--ink2);cursor:pointer;text-decoration:underline;text-decoration-color:var(--hair);text-underline-offset:3px}
 .when{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.when label{display:flex;flex-direction:column;gap:2px;font-size:11.5px;letter-spacing:.24em;color:var(--muted)}
-.when input{border:0;border-bottom:1px solid var(--hair);padding:7px 0;font-family:var(--serif);font-size:17px;background:transparent;letter-spacing:.04em;color:var(--ink)}
+.when label{display:flex;flex-direction:column;gap:2px;font-size:calc(11.5px * var(--fs));letter-spacing:.24em;color:var(--muted)}
+.when input{border:0;border-bottom:1px solid var(--hair);padding:7px 0;font-family:var(--serif);font-size:calc(17px * var(--fs));background:transparent;letter-spacing:.04em;color:var(--ink)}
 
 /* ---------- 比較 ---------- */
-.lead{font-family:var(--serif);font-size:19px;line-height:1.6;text-wrap:balance;margin:0}
+.lead{font-family:var(--serif);font-size:calc(19px * var(--fs));line-height:1.6;text-wrap:balance;margin:0}
 .lead em{font-style:normal;color:var(--accent)}
 .rows{border-top:1px solid var(--ink)}
 .row{display:grid;grid-template-columns:30px 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--hair);padding:12px 2px;cursor:pointer}
 .row:hover{background:var(--hair2)}
-.row .ic{font-size:19px;filter:grayscale(.35)}
-.row .nm{font-size:15px;font-weight:500;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
-.row .nm small{font-size:11px;color:var(--accent);letter-spacing:.2em;font-weight:400}
-.row .sub{font-size:12px;color:var(--muted);display:block}
-.row .min{font-family:var(--serif);font-size:28px;line-height:1;text-align:right;font-variant-numeric:tabular-nums}
-.row .min span{font-size:12px;font-family:var(--sans);color:var(--muted);margin-left:2px}
+.row .ic{font-size:calc(19px * var(--fs));filter:grayscale(.35)}
+.row .nm{font-size:calc(15px * var(--fs));font-weight:500;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.row .nm small{font-size:calc(11px * var(--fs));color:var(--accent);letter-spacing:.2em;font-weight:400}
+.row .sub{font-size:calc(12px * var(--fs));color:var(--muted);display:block}
+.row .min{font-family:var(--serif);font-size:calc(28px * var(--fs));line-height:1;text-align:right;font-variant-numeric:tabular-nums}
+.row .min span{font-size:calc(12px * var(--fs));font-family:var(--sans);color:var(--muted);margin-left:2px}
 .row.best .min{color:var(--accent)}
 .row.hyp{background:linear-gradient(90deg,var(--accent-soft),transparent 75%);padding-top:8px;padding-bottom:10px}
-.row.hyp .min{font-size:24px}
+.row.hyp .min{font-size:calc(24px * var(--fs))}
 .pair{border-bottom:1px solid var(--ink)}.pair .row{border-bottom:1px dashed var(--hair)}.pair .row:last-child{border-bottom:0}
 .rows{border-top:1px solid var(--ink)}
-.tagp{font-size:12.5px;color:var(--accent);letter-spacing:.12em;border-left:2px solid var(--accent);padding-left:7px}
+.tagp{font-size:calc(12.5px * var(--fs));color:var(--accent);letter-spacing:.12em;border-left:2px solid var(--accent);padding-left:7px}
 .gain{font-style:normal;color:var(--accent);font-weight:500}.same{color:var(--muted)}
 .concl{border:1px solid var(--accent);padding:16px 18px;background:linear-gradient(180deg,var(--accent-soft),#fff 60%)}
-.concl .big{font-family:var(--serif);font-size:18px;line-height:1.6;margin:6px 0 8px}.concl b{color:var(--accent);font-size:1.15em}
-.concl ul{margin:4px 0 8px;padding-left:18px;font-size:14px}.concl .cheer{font-weight:500}
+.concl .big{font-family:var(--serif);font-size:calc(18px * var(--fs));line-height:1.6;margin:6px 0 8px}.concl b{color:var(--accent);font-size:1.15em}
+.concl ul{margin:4px 0 8px;padding-left:18px;font-size:calc(14px * var(--fs))}.concl .cheer{font-weight:500}
 .island{display:block;text-align:center;text-decoration:none;margin:12px 0 6px}
-.polbtn{width:100%;text-align:center;font-size:15px;letter-spacing:.08em}
-details.pol{border-bottom:1px solid var(--hair)}details.pol summary{cursor:pointer;padding:9px 2px;font-size:14.5px;list-style:none;display:flex;gap:8px;align-items:center}
-details.pol summary::-webkit-details-marker{display:none}details.pol summary:before{content:"▸";color:var(--muted);font-size:12px;transition:transform .15s}
+.polbtn{width:100%;text-align:center;font-size:calc(15px * var(--fs));letter-spacing:.08em}
+details.pol{border-bottom:1px solid var(--hair)}details.pol summary{cursor:pointer;padding:9px 2px;font-size:calc(14.5px * var(--fs));list-style:none;display:flex;gap:8px;align-items:center}
+details.pol summary::-webkit-details-marker{display:none}details.pol summary:before{content:"▸";color:var(--muted);font-size:calc(12px * var(--fs));transition:transform .15s}
 details.pol[open] summary:before{transform:rotate(90deg)}details.pol[open] summary{color:var(--accent)}
-.pol-body{padding:0 2px 12px 18px;font-size:13.5px}.pol-body p{margin:4px 0}.pol-body .src{font-size:12px;color:var(--muted)}
-.k.sim{font-size:10px;color:var(--accent);border:1px solid currentColor;padding:0 4px;letter-spacing:.06em}.k.mapk{font-size:10px;color:var(--project);border:1px solid currentColor;padding:0 4px}
+.pol-body{padding:0 2px 12px 18px;font-size:calc(13.5px * var(--fs))}.pol-body p{margin:4px 0}.pol-body .src{font-size:calc(12px * var(--fs));color:var(--muted)}
+.k.sim{font-size:calc(10px * var(--fs));color:var(--accent);border:1px solid currentColor;padding:0 4px;letter-spacing:.06em}.k.mapk{font-size:calc(10px * var(--fs));color:var(--project);border:1px solid currentColor;padding:0 4px}
 .simline{color:var(--accent)!important}
-.sheet .box{position:relative}.sheet-x{position:absolute;top:10px;right:12px;border:0;background:none;font-size:22px;cursor:pointer;color:var(--muted)}
-.fine{font-size:12px;color:var(--muted);line-height:1.6;margin:0}
+.sheet .box{position:relative}.tour-ol{padding-left:20px;margin:6px 0}.tour-ol li{margin:4px 0}
+.sheet-x{position:absolute;top:10px;right:12px;border:0;background:none;font-size:calc(22px * var(--fs));cursor:pointer;color:var(--muted)}
+.fine{font-size:calc(12px * var(--fs));color:var(--muted);line-height:1.6;margin:0}
 
 /* ---------- 政見地圖 ---------- */
-.switch{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:14px}
+.switch{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:calc(14px * var(--fs))}
 .switch input{appearance:none;width:30px;height:16px;border:1px solid var(--ink2);border-radius:999px;position:relative;flex:none;margin-top:4px;cursor:pointer;background:#fff}
 .switch input:before{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:var(--ink2);top:2px;left:2px;transition:left .15s}
 .switch input:checked{background:var(--accent);border-color:var(--accent)}
 .switch input:checked:before{left:16px;background:#fff}
-.switch small{display:block;color:var(--muted);font-size:12px}
-.legend{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink2)}
+.switch small{display:block;color:var(--muted);font-size:calc(12px * var(--fs))}
+.legend{display:flex;flex-direction:column;gap:4px;font-size:calc(12px * var(--fs));color:var(--ink2)}
 .legend span{display:flex;align-items:center;gap:8px}
 .legend i{display:inline-block;width:28px;height:0;border-top:3px solid}
 .legend i.p{border-color:var(--policy);border-top-style:dotted}
 .legend i.j{border-color:var(--project);border-top-style:dashed}
 .legend i.e{border-color:var(--exist)}
-.plist{list-style:none;margin:0;padding:0;font-size:13px}
+.plist{list-style:none;margin:0;padding:0;font-size:calc(13px * var(--fs))}
 .plist li{border-bottom:1px solid var(--hair2)}
 .plist button{width:100%;text-align:left;background:none;border:0;padding:6px 0;cursor:pointer;display:flex;gap:8px;align-items:baseline}
 .plist button:hover{color:var(--accent)}
-.k{font-size:10.5px;letter-spacing:.14em;white-space:nowrap}
+.k{font-size:calc(10.5px * var(--fs));letter-spacing:.14em;white-space:nowrap}
 .k.policy{color:var(--policy)}.k.project{color:var(--project)}.k.exist{color:var(--muted)}.k.news{color:var(--danger)}.k.sim{color:var(--muted)}
 
 /* ---------- 模擬中 ---------- */
 .legs{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink)}
-.legs li{display:grid;grid-template-columns:26px 1fr auto;gap:10px;padding:9px 2px;border-bottom:1px solid var(--hair);font-size:13.5px}
+.legs li{display:grid;grid-template-columns:26px 1fr auto;gap:10px;padding:9px 2px;border-bottom:1px solid var(--hair);font-size:calc(13.5px * var(--fs))}
 .legs li.now{background:var(--accent-soft)}
 .legs li.done{color:var(--muted)}
 .legs .t{font-family:var(--serif);font-variant-numeric:tabular-nums}
 .choices{display:flex;flex-direction:column;gap:6px}
-.btn{border:1px solid var(--ink);background:#fff;padding:10px 14px;cursor:pointer;font-size:14px;text-align:left}
+.btn{border:1px solid var(--ink);background:#fff;padding:10px 14px;cursor:pointer;font-size:calc(14px * var(--fs));text-align:left}
 .btn:hover{background:var(--ink);color:#fff}
 .btn.primary{background:var(--ink);color:#fff}
 .btn.primary:hover{background:var(--accent);border-color:var(--accent)}
 .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.log{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.log{display:flex;flex-direction:column;gap:6px;font-size:calc(13px * var(--fs))}
 .log div{padding-left:10px;border-left:2px solid var(--hair)}
 .log div.ev{border-color:var(--danger)}.log div.policy{border-color:var(--policy)}.log div.project{border-color:var(--project)}
-.result .big{font-family:var(--serif);font-size:30px;line-height:1.3}
+.result .big{font-family:var(--serif);font-size:calc(30px * var(--fs));line-height:1.3}
 .result.late .big{color:var(--danger)}
 .kv{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--hair);margin-top:10px}
 .kv div{padding:8px 0}.kv div+div{padding-left:12px;border-left:1px solid var(--hair)}
-.kv dt{font-size:11px;letter-spacing:.2em;color:var(--muted)}.kv dd{margin:0;font-family:var(--serif);font-size:18px;font-variant-numeric:tabular-nums}
+.kv dt{font-size:calc(11px * var(--fs));letter-spacing:.2em;color:var(--muted)}.kv dd{margin:0;font-family:var(--serif);font-size:calc(18px * var(--fs));font-variant-numeric:tabular-nums}
 
 /* ---------- 地圖上的元素 ---------- */
-.hud{position:absolute;z-index:1100;top:12px;left:12px;right:58px;background:rgba(255,255,255,.96);border:1px solid var(--hair);padding:6px 14px;display:flex;flex-wrap:wrap;gap:2px 16px;align-items:baseline;font-size:13px}
-.hud .clock{font-family:var(--serif);font-size:24px;font-variant-numeric:tabular-nums}
-.map-note{position:absolute;z-index:1100;left:12px;bottom:22px;max-width:calc(100% - 24px);background:rgba(255,255,255,.96);border:1px solid var(--hair);color:var(--muted);padding:4px 10px;font-size:11.5px;line-height:1.5}
+.hud{position:absolute;z-index:1100;top:12px;left:12px;right:58px;background:rgba(255,255,255,.96);border:1px solid var(--hair);padding:6px 14px;display:flex;flex-wrap:wrap;gap:2px 16px;align-items:baseline;font-size:calc(13px * var(--fs))}
+.hud .clock{font-family:var(--serif);font-size:calc(24px * var(--fs));font-variant-numeric:tabular-nums}
+.map-note{position:absolute;z-index:1100;left:12px;bottom:22px;max-width:calc(100% - 24px);background:rgba(255,255,255,.96);border:1px solid var(--hair);color:var(--muted);padding:4px 10px;font-size:calc(11.5px * var(--fs));line-height:1.5}
 .tok{position:relative;width:40px;height:40px}
-.tok .face{position:absolute;left:4px;top:0;font-size:24px}
-.tok .veh{position:absolute;right:-2px;bottom:-2px;font-size:16px;background:#fff;border:1px solid var(--ink);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}
+.tok .face{position:absolute;left:4px;top:0;font-size:calc(24px * var(--fs))}
+.tok .veh{position:absolute;right:-2px;bottom:-2px;font-size:calc(16px * var(--fs));background:#fff;border:1px solid var(--ink);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}
 .tok.bounce .face{animation:hop .5s ease-in-out infinite alternate}
 @keyframes hop{to{transform:translateY(-4px)}}
 .pin{width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--ink);box-shadow:0 0 0 4px rgba(255,255,255,.9)}
 .pin.d{background:var(--accent);border-color:var(--accent)}
-.pin-lbl{font-family:var(--serif);font-size:13px;white-space:nowrap;background:#fff;border:1px solid var(--ink);padding:0 6px;transform:translate(14px,-26px);display:inline-block}
+.pin-lbl{font-family:var(--serif);font-size:calc(13px * var(--fs));white-space:nowrap;background:#fff;border:1px solid var(--ink);padding:0 6px;transform:translate(14px,-26px);display:inline-block}
 .stn{width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid var(--mrt)}
 .stn.tra{border-color:var(--rail);border-radius:1px}
-.stn-label{font-size:10.5px;color:var(--ink2);white-space:nowrap;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff;transform:translate(8px,-7px)}
-.pol-label{font-size:11px;white-space:nowrap;background:#fff;padding:0 5px;border:1px solid currentColor;transform:translate(-50%,-50%);display:inline-block;letter-spacing:.06em}
+.stn-label{font-size:calc(10.5px * var(--fs));color:var(--ink2);white-space:nowrap;text-shadow:0 0 2px #fff,0 0 2px #fff,0 0 3px #fff;transform:translate(8px,-7px)}
+.pol-label{font-size:calc(11px * var(--fs));white-space:nowrap;background:#fff;padding:0 5px;border:1px solid currentColor;transform:translate(-50%,-50%);display:inline-block;letter-spacing:.06em}
 .pol-label.policy{color:var(--policy)}.pol-label.project{color:var(--project)}.pol-label.exist{color:var(--muted)}
-.bub{position:relative;width:min(280px,64vw);background:#fff;color:var(--ink);padding:12px 14px;font-size:13px;line-height:1.6;border:1px solid var(--ink);box-shadow:6px 6px 0 rgba(0,0,0,.06);transform:translate(-50%,calc(-100% - 16px))}
+.bub{position:relative;width:min(280px,64vw);background:#fff;color:var(--ink);padding:12px 14px;font-size:calc(13px * var(--fs));line-height:1.6;border:1px solid var(--ink);box-shadow:6px 6px 0 rgba(0,0,0,.06);transform:translate(-50%,calc(-100% - 16px))}
 .bub:after{content:"";position:absolute;left:calc(50% - var(--dx,0px));bottom:-8px;margin-left:-7px;width:13px;height:13px;background:#fff;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);transform:rotate(45deg)}
 .bub.below{transform:translate(-50%,18px)}
 .bub.below:after{top:-8px;bottom:auto;transform:rotate(-135deg)}
 .bub.policy{border-color:var(--policy)}.bub.policy:after{border-color:var(--policy)}
 .bub.project{border-color:var(--project)}.bub.project:after{border-color:var(--project)}
-.bub h4{margin:0 0 4px;font-family:var(--serif);font-size:15px;font-weight:600;line-height:1.4}
+.bub h4{margin:0 0 4px;font-family:var(--serif);font-size:calc(15px * var(--fs));font-weight:600;line-height:1.4}
 .bub p{margin:0 0 6px}
-.bub .src{font-size:11.5px;color:var(--muted)}
-.bub .x{position:absolute;right:8px;top:4px;border:0;background:none;font-size:16px;cursor:pointer;color:var(--muted)}
+.bub .src{font-size:calc(11.5px * var(--fs));color:var(--muted)}
+.bub .x{position:absolute;right:8px;top:4px;border:0;background:none;font-size:calc(16px * var(--fs));cursor:pointer;color:var(--muted)}
 .bub .choices{margin-top:8px}
-.bub .btn{font-size:13px;padding:7px 10px}
+.bub .btn{font-size:calc(13px * var(--fs));padding:7px 10px}
 .leaflet-marker-icon.bub-host{pointer-events:auto}
 #svgmap{position:absolute;inset:0;width:100%;height:100%}
 #svgOverlay{position:absolute;inset:0;pointer-events:none}
@@ -211,18 +229,19 @@ details.pol[open] summary:before{transform:rotate(90deg)}details.pol[open] summa
 .sheet{position:fixed;inset:0;z-index:3000;background:rgba(255,255,255,.82);display:grid;place-items:center;padding:16px}
 .sheet .box{background:#fff;border:1px solid var(--ink);max-width:720px;width:100%;max-height:calc(100% - 32px);overflow:auto;padding:22px 24px}
 .sheet h2{font-family:var(--serif);font-weight:600;margin:0 0 8px;letter-spacing:.1em}
-.sheet h3{margin:18px 0 6px;font-size:12px;letter-spacing:.24em;color:var(--muted);font-weight:500}
+.sheet h3{margin:18px 0 6px;font-size:calc(12px * var(--fs));letter-spacing:.24em;color:var(--muted);font-weight:500}
 .sheet ul{padding-left:18px;margin:4px 0}
-.sheet li{margin:3px 0;font-size:13.5px}
-.status-grid{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px}
+.sheet li{margin:3px 0;font-size:calc(13.5px * var(--fs))}
+.status-grid{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:calc(13.5px * var(--fs))}
 @media (prefers-reduced-motion:reduce){.tok.bounce .face{animation:none}.switch input:before{transition:none}}
-@media (max-width:600px){.mapbox.running .map-note{display:none!important}.top h1{font-size:24px}}
+@media (max-width:600px){.mapbox.running .map-note{display:none!important}.top h1{font-size:calc(24px * var(--fs))}}
 </style>
 
 <div class="app">
   <header class="top">
     <div><h1>台中通勤大作戰<span class="en">Taichung Commute</span></h1></div>
-    <nav><button class="linkbtn" data-act="policyList">政見清單</button><button class="linkbtn" data-act="fitPolicy">政見地圖</button><button class="linkbtn" data-act="info">資料說明</button></nav>
+    <div class="tools"><nav><button class="linkbtn" data-act="fitPolicy">政見地圖</button><button class="linkbtn" data-act="tour">使用教學</button><button class="linkbtn" data-act="info">資料說明</button></nav>
+      <div class="fsz" role="group" aria-label="字體大小"><span>字體</span><button data-act="fs" data-arg="s" aria-pressed="false">小</button><button data-act="fs" data-arg="m" aria-pressed="false">中</button><button data-act="fs" data-arg="l" aria-pressed="false">大</button></div></div>
   </header>
   <main class="stage">
     <section class="panel" id="panel" aria-live="polite"></section>
@@ -496,6 +515,8 @@ const POLICY_MAP = [
   { id: 'airportBig', kind: 'policy', title: '台中大機場計畫', short: '台中大機場', pts: ['airport'],
     policy: '何欣純政見：擴建停機坪、興建第三航廈，增設停車、物流中心與商業區。', note: '只標示位置。', src: ['airportBig'] },
 ];
+/** 台中市全境的大致範圍（西到臺中港、東到和平區山區） */
+const TAICHUNG_BOUNDS = [{ lat: 23.99, lng: 120.46 }, { lat: 24.44, lng: 121.45 }];
 const KIND_LABEL = { policy: '政見・尚未實施', project: '建設計畫', exist: '既有道路' };
 /** 何欣純交通政見清單（重複的已合併；文字為政見與報導重點）。map＝地圖上的示意線，sim＝遊戲「政見版」怎麼算 */
 const POLICY_LIST = [
@@ -982,6 +1003,21 @@ const Planner = (() => {
  * Leaflet 底圖依序嘗試：國土測繪中心「臺灣通用電子地圖」→ OpenStreetMap → 裝飾底圖（虛構街廓）。
  * Leaflet 無法載入時改用依真實座標繪製的 SVG 示意圖。四種狀態分開記錄，不會互相誤報。
  */
+/** 地圖文字標籤避免互相重疊：起訖點標籤優先，其次政見標籤；重疊的較後者先隱藏 */
+function declutter() {
+  const box = document.getElementById('map'); if (!box) return;
+  const els = [...box.querySelectorAll('.pin-lbl'), ...box.querySelectorAll('.pol-label')];
+  els.forEach(e => { e.style.visibility = ''; });
+  const kept = [];
+  for (const e of els) {
+    const r = e.getBoundingClientRect(); if (!r.width) continue;
+    const hit = kept.some(k => !(r.right + 2 <= k.left || r.left >= k.right + 2 || r.bottom + 2 <= k.top || r.top >= k.bottom + 2));
+    if (hit) e.style.visibility = 'hidden'; else kept.push(r);
+  }
+}
+let declutterT = 0;
+const declutterSoon = () => { clearTimeout(declutterT); declutterT = setTimeout(declutter, 60); };
+window.addEventListener('resize', declutterSoon);
 const MapView = (() => {
   const st = { js: 'pending', container: 'pending', tiles: 'pending', tilesLoaded: 0, base: '', error: '' };
   let impl = null, initStarted = false, queued = null, onPin = null;
@@ -1006,6 +1042,7 @@ const MapView = (() => {
     init() {
       const map = this.map = L.map('map', { zoomControl: true, attributionControl: true, zoomSnap: 0.5 }).setView([24.18, 120.62], 11);
       map.zoomControl.setPosition('topright');
+      if (typeof map.on === 'function') map.on('zoomend moveend', declutterSoon);
       map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
       ['policy', 'base', 'route', 'live', 'marks', 'bubbles'].forEach(k => { this.g[k] = L.layerGroup().addTo(map); });
       this.tryBase(0);
@@ -1074,7 +1111,8 @@ const MapView = (() => {
     },
     unbubble(id) { const m = this.bubbles.get(id); if (m) { this.g.bubbles.removeLayer(m); this.bubbles.delete(id); } },
     fit(pts) { if (pts.length) this.map.fitBounds(L.latLngBounds(pts.map(this.ll)).pad(0.15), { maxZoom: 15 }); },
-    pan(p) { if (!this.map.getBounds().pad(-0.15).contains(this.ll(p))) this.map.panTo(this.ll(p), { animate: !reduceMotion }); },
+    focus(p, z) { const cur = typeof this.map.getZoom === 'function' ? this.map.getZoom() : 0; this.map.setView(this.ll(p), Math.max(cur, z), { animate: !reduceMotion }); },
+    pan(p) { if (!this.map.getBounds().pad(-0.25).contains(this.ll(p))) this.map.panTo(this.ll(p), { animate: !reduceMotion }); },
   };
 
   /* ---------- SVG 示意圖 ---------- */
@@ -1109,7 +1147,7 @@ const MapView = (() => {
       for (const k of ['policy', 'base', 'live', 'marks']) for (const it of this.layers[k]) if (it.t === 'mk') { const [x, y] = this.project(it.p); o += `<div style="left:${x}px;top:${y}px;transform:translate(-50%,-50%)">${it.html}</div>`; }
       if (this.token) { const [x, y] = this.project(this.token.p); o += `<div style="left:${x}px;top:${y}px;transform:translate(-50%,-70%);z-index:5">${this.token.html}</div>`; }
       for (const [id, b] of this.bubbles) { const [x, y] = this.project(b.p); o += `<div style="left:${x}px;top:${y}px;z-index:6" data-bub="${id}">${b.html}</div>`; }
-      ov.innerHTML = o;
+      ov.innerHTML = o; declutterSoon();
     },
     setToken(p, html) { this.token = { p, html }; this.draw(); },
     hideToken() { this.token = null; this.draw(); },
@@ -1121,6 +1159,7 @@ const MapView = (() => {
       this.bbox = { s: Math.min(...lat), n: Math.max(...lat), w: Math.min(...lng), e: Math.max(...lng) }; this.draw();
     },
     pan() {},
+    focus() {},
   };
 
   const STYLE = {
@@ -1155,6 +1194,7 @@ const MapView = (() => {
     },
     /** 政見地圖：政見（朱色點線）、建設計畫（藍色長虛線）、既有道路（灰色實線）；每條都可點開來源 */
     drawPolicy(show) {
+      declutterSoon();
       if (!impl) return;
       impl.clear('policy');
       if (!show) return;
@@ -1191,6 +1231,7 @@ const MapView = (() => {
     bubble(id, p, html) { if (impl) impl.bubble(id, p, html); },
     unbubble(id) { if (impl) impl.unbubble(id); },
     fit(pts) { if (impl) impl.fit(pts); },
+    focus(p, z) { if (impl) { if (impl.focus) impl.focus(p, z); } },
     pan(p) { if (impl) impl.pan(p); },
   };
 })();
@@ -1284,7 +1325,7 @@ const Sim = (() => {
     run = { plan, legs, events, ui, legIdx: 0, legT: 0, clock: plan.depart, delay: 0, extraCost: 0, paused: false,
             seenNotes: new Set(), log: [], raf: 0, last: 0, firedEvents: new Set() };
     MapView.drawRoute(plan.legs);
-    MapView.fit(plan.legs.flatMap(l => l.pts));
+    MapView.focus(legs[0].pts[0], 14);
     ui.onUpdate(run);
     run.last = performance.now();
     run.raf = requestAnimationFrame(tick);
@@ -1418,7 +1459,7 @@ const UI = (() => {
       MapView.drawLive(S.live);
       const best = S.plans && S.plans.length ? S.plans.slice().sort((a, b) => a.min - b.min)[0] : null;
       if (S.view === 'plan') { MapView.drawRoute(best ? best.legs : []); MapView.hideToken(); }
-      const pts = fitPolicy ? Object.values(PT) : [S.from, S.to].concat(best ? best.legs.flatMap(l => l.pts) : []);
+      const pts = fitPolicy === 'city' ? TAICHUNG_BOUNDS : Array.isArray(fitPolicy) ? fitPolicy : fitPolicy ? Object.values(PT) : [S.from, S.to].concat(best ? best.legs.flatMap(l => l.pts) : []);
       MapView.fit(pts);
     });
   }
@@ -1523,10 +1564,21 @@ const UI = (() => {
       <p style="margin-top:16px">${`<a class="btn primary island" href="https://taichung-island.netlify.app/" target="_blank" rel="noopener">到「台中政策島」看何欣純的完整政見 →</a>`}</p>`;
     $('#sheet').hidden = false;
   }
-  function policyOnMap(id) { $('#sheet').hidden = true; S.policy = true; redrawMap(true); setTimeout(() => showPolicy(id), 50); }
+  function policyOnMap(id) {
+    $('#sheet').hidden = true; S.policy = true;
+    const m = POLICY_MAP.find(x => x.id === id), pts = m ? m.pts.map(k => PT[k]) : [];
+    redrawMap(pts.length > 1 ? pts : pts.length ? [{ lat: pts[0].lat - 0.03, lng: pts[0].lng - 0.03 }, { lat: pts[0].lat + 0.03, lng: pts[0].lng + 0.03 }] : 'city');
+    showMap(); setTimeout(() => showPolicy(id), 80);
+  }
+  /** 地圖不在畫面內時（手機上地圖在上方），捲動到地圖 */
+  function showMap() {
+    const box = document.querySelector('.mapbox'), r = box.getBoundingClientRect();
+    if (r.top < -40 || r.top > window.innerHeight * 0.5) box.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
   /** 點選任一方式：先跳出確認視窗 */
   function askGo(mode) {
     const p = S.plans && S.plans.find(x => x.mode === mode); if (!p) return;
+    Tour.event('choose');
     const hyp = MODES[mode].hyp;
     MapView.whenReady(() => { MapView.drawRoute(p.legs); MapView.fit([S.from, S.to].concat(p.legs.flatMap(l => l.pts))); });
     $('#sheetBox').innerHTML = `<h2>開始模擬通勤</h2>
@@ -1574,6 +1626,7 @@ const UI = (() => {
       hud.innerHTML = `<span class="clock">${fmt(run.clock)}</span><span>${LEG[L.mode].icon} ${esc(LEG[L.mode].name)}</span>
         <span>預計 ${fmt(eta)} 到・目標 ${esc(S.time)}</span>${run.delay > 0 ? `<span class="k news">延誤 +${Math.round(run.delay)} 分</span>` : ''}`;
     } else hud.hidden = true;
+    Tour.refresh();
   }
   const ui = { onUpdate: () => render(), onIncident: () => render(), onFinish: () => render() };
   async function go(mode) {
@@ -1589,12 +1642,12 @@ const UI = (() => {
       S.going = false; S.plans = plan(); p = S.plans.find(x => x.mode === mode) || p;
     }
     S.view = 'run'; p.arrivePt = S.to; MapView.unbubble('live');
-    Sim.start(p, ui); render();
+    Sim.start(p, ui); render(); showMap();
   }
   function back() { Sim.stop(); S.view = 'plan'; render(); redrawMap(); }
   async function find(which) {
     const el = $(`#${which}Q`); const q = (el && el.value || '').trim(); if (!q) return;
-    S.q[which] = q; S.busy[which] = true; S.msg[which] = ''; S.sugg[which] = []; render();
+    S.q[which] = q; S.busy[which] = true; S.msg[which] = ''; S.sugg[which] = []; Tour.event(`find:${which}`); render();
     const loc = Geocoder.local(q);
     const { results } = await Geocoder.search(q);
     S.busy[which] = false;
@@ -1608,11 +1661,11 @@ const UI = (() => {
   function pickAddr(arg) {
     const [which, i] = arg.split('|'); const r = S.sugg[which][Number(i)]; if (!r) return;
     S[which] = { ...r, id: `${which}_${Date.now()}` }; S.sugg[which] = []; S.msg[which] = ''; S.q[which] = r.name;
-    compute();
+    Tour.event(`pick:${which}`); compute();
   }
   function preset(arg) {
     const [which, id] = arg.split('|'); const p = PLACES.find(x => x.id === id); if (!p) return;
-    S[which] = asPlace(p); S.sugg[which] = []; S.msg[which] = ''; S.q[which] = p.name; compute();
+    S[which] = asPlace(p); S.sugg[which] = []; S.msg[which] = ''; S.q[which] = p.name; Tour.event(`pick:${which}`); compute();
   }
   function movePin(which, ll) {
     if (S.view !== 'plan') return;
@@ -1670,14 +1723,120 @@ const UI = (() => {
       <p style="margin-top:16px"><button class="btn primary" data-act="closeInfo">知道了</button></p>`;
     $('#sheet').hidden = false;
   }
-  return { S, render, compute, go, askGo, back, find, pickAddr, preset, movePin, showPolicy, showLive, policyList, policyOnMap, info, redrawMap };
+  return { S, showMap, render, compute, go, askGo, back, find, pickAddr, preset, movePin, showPolicy, showLive, policyList, policyOnMap, info, redrawMap };
+})();
+
+
+/* ============================ 第一次使用教學 ============================
+ * 彈跳視窗＋手指，依序引導：出發地址 → 定位 → 選位置 → 抵達地址 → 定位 → 選位置 → 選通勤方式。
+ * 每次畫面重繪後重新找目標元素並定位（Tour.refresh 由 UI.render 呼叫）。 */
+const Tour = (() => {
+  const KEY = 'tcb_tour_done';
+  const store = { get: () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } }, set: () => { try { localStorage.setItem(KEY, '1'); } catch (e) {} } };
+  const W = { from: '出發', to: '抵達' };
+  const STEPS = [
+    { id: 'from-type', which: 'from', sel: '#fromQ', title: '① 輸入出發地址', text: '點這裡，輸入出發的地址或地名，例如「西屯區惠來路二段101號」。也可以點下面的常用地點。', next: 'find:from', btn: '輸入好了' },
+    { id: 'from-find', which: 'from', sel: '[data-act="find"][data-arg="from"]', title: '② 按「定位」', text: '按「定位」，搜尋這個地址。', next: 'find:from' },
+    { id: 'from-pick', which: 'from', sel: '#panel .where:nth-of-type(1) .sugg, #panel .where:nth-of-type(1) .presets', title: '③ 選擇位置', text: '從清單中點選正確的位置。找不到時，可以改點常用地點。', next: 'pick:from' },
+    { id: 'to-type', which: 'to', sel: '#toQ', title: '④ 輸入抵達地址', text: '接著輸入要去的地方，例如公司或學校的地址。', next: 'find:to', btn: '輸入好了' },
+    { id: 'to-find', which: 'to', sel: '[data-act="find"][data-arg="to"]', title: '⑤ 按「定位」', text: '按「定位」，搜尋抵達地址。', next: 'find:to' },
+    { id: 'to-pick', which: 'to', sel: '#panel .where:nth-of-type(2) .sugg, #panel .where:nth-of-type(2) .presets', title: '⑥ 選擇位置', text: '從清單中點選正確的位置。', next: 'pick:to' },
+    { id: 'choose', sel: '#panel .rows .pair', title: '⑦ 選一種通勤方式', text: '這裡比較開車、騎機車、大眾運輸、走路、騎腳踏車要多久、花多少錢。每一種都有「現況」和下方的「何欣純政見版」。點任一行，就開始模擬通勤！', next: 'choose', scroll: true },
+  ];
+  let idx = -1, tip = null, finger = null, hl = null, lastScrolled = -1;
+  const active = () => idx >= 0;
+  function clear() {
+    if (hl) hl.classList.remove('tour-hl'); hl = null;
+    if (tip) tip.remove(); if (finger) finger.remove(); tip = finger = null;
+  }
+  function welcome() {
+    $('#sheetBox').innerHTML = `<h2>歡迎來到台中通勤大作戰</h2>
+      <p>只要三步：</p><ol class="tour-ol"><li>輸入<b>出發</b>地址，按「定位」，選擇位置。</li><li>輸入<b>抵達</b>地址，按「定位」，選擇位置。</li><li>看各種通勤方式要多久、花多少錢，點一種開始模擬。</li></ol>
+      <p class="fine">右上角可以把字體調成「大」。</p>
+      <div class="btns" style="margin-top:14px"><button class="btn primary" data-act="tourStart">開始教學</button><button class="btn" data-act="tourSkip">我會用，跳過</button></div>`;
+    $('#sheet').hidden = false;
+  }
+  function start() { $('#sheet').hidden = true; idx = 0; lastScrolled = -1; refresh(); }
+  function end() { idx = -1; clear(); store.set(); }
+  function go(k) { idx = k; if (idx >= STEPS.length) return end(); refresh(); }
+  function event(name) {
+    if (!active()) return;
+    const st = STEPS[idx];
+    if (name === st.next) { go(idx + (st.id.endsWith('type') ? 2 : 1)); return; }
+    // 也接受跳步：例如直接點常用地點
+    const k = STEPS.findIndex((x, i) => i > idx && x.next === name);
+    if (k >= 0) go(k + 1);
+  }
+  function refresh() {
+    if (!active()) return;
+    const st = STEPS[idx];
+    if (UI.S.view !== 'plan' || !$('#sheet').hidden) { clear(); return; }
+    // 「選擇位置」：等查詢完成；有建議清單就指向清單，否則指向常用地點
+    let el = null;
+    for (const sel of st.sel.split(', ')) { el = document.querySelector(sel); if (el && (!sel.includes('.sugg') || el.children.length)) break; el = null; }
+    if (st.id.endsWith('pick') && UI.S.busy[st.which]) el = null;
+    clear();
+    if (!el) return;
+    hl = el; el.classList.add('tour-hl');
+    if (lastScrolled !== idx || st.scroll) {
+      const r0 = el.getBoundingClientRect();
+      if (r0.top < 70 || r0.bottom > window.innerHeight - 160) el.scrollIntoView({ block: 'center', behavior: 'auto' });
+      lastScrolled = idx; st.scroll = false;
+    }
+    tip = document.createElement('div'); tip.className = 'tour-tip'; tip.setAttribute('role', 'dialog');
+    tip.innerHTML = `<span class="step">使用教學 ${idx + 1} / ${STEPS.length}</span><h4>${st.title}</h4><p style="margin:0">${st.text}</p>
+      <div class="row2"><button class="linkbtn" data-act="tourSkip">結束教學</button>${st.btn ? `<button class="btn primary" data-act="tourNext">${st.btn}</button>` : ''}</div>`;
+    finger = document.createElement('div'); finger.className = 'tour-finger'; finger.textContent = '👆'; finger.setAttribute('aria-hidden', 'true');
+    document.body.append(tip, finger);
+    place();
+  }
+  function place() {
+    if (!tip || !hl) return;
+    const r = hl.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+    const tw = tip.offsetWidth, th = tip.offsetHeight, fs = finger.offsetHeight || 40;
+    // 手指：在目標下方偏左，指向目標
+    const fx = Math.min(vw - 44, Math.max(4, r.left + Math.min(40, r.width / 2) - 12));
+    let below = r.bottom + fs + 8 + th < vh || r.top < th + fs + 16;
+    const fy = below ? r.bottom + 2 : r.top - fs - 2;
+    finger.style.left = `${fx}px`; finger.style.top = `${fy}px`;
+    finger.textContent = below ? '👆' : '👇';
+    // 說明框：避開目標，不遮住
+    let ty = below ? fy + fs + 6 : fy - th - 6;
+    ty = Math.max(8, Math.min(vh - th - 8, ty));
+    let tx = Math.max(16, Math.min(vw - tw - 16, r.left));
+    tip.style.left = `${tx}px`; tip.style.top = `${ty}px`;
+  }
+  window.addEventListener('scroll', () => place(), { passive: true });
+  window.addEventListener('resize', () => refresh());
+  function next() {
+    const st = STEPS[idx];
+    if (st && st.id.endsWith('type')) { const v = ($(st.sel) || {}).value; if (v && v.trim()) { UI.find(st.which); return; } }
+    go(idx + 1);
+  }
+  function maybeWelcome() { if (!store.get()) welcome(); }
+  return { start, end, event, refresh, welcome, maybeWelcome, next, active };
+})();
+
+/* ---------- 字體大小 ---------- */
+const FontSize = (() => {
+  const KEY = 'tcb_fs';
+  function set(v, save = true) {
+    document.documentElement.dataset.fs = v; declutterSoon();
+    document.querySelectorAll('.fsz button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.arg === v)));
+    if (save) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+    Tour.refresh();
+  }
+  let v = 'm'; try { v = localStorage.getItem(KEY) || 'm'; } catch (e) {}
+  set(v, false);
+  return { set };
 })();
 
 /* ---------- 輸入（捕獲階段，避免被地圖攔截） ---------- */
 const ACT = {
+  fs: a => FontSize.set(a), tour: () => { UI.back(); Tour.welcome(); }, tourStart: () => Tour.start(), tourSkip: () => { $('#sheet').hidden = true; Tour.end(); }, tourNext: () => Tour.next(),
   go: a => UI.askGo(a), goNow: a => UI.go(a), policyList: () => UI.policyList(), policyOnMap: a => UI.policyOnMap(a), back: () => UI.back(), choose: a => Sim.choose(Number(a)), info: () => UI.info(),
-  closeInfo: () => { $('#sheet').hidden = true; }, find: a => UI.find(a), pickAddr: a => UI.pickAddr(a), preset: a => UI.preset(a),
-  policy: (a, el, at) => UI.showPolicy(a, at), live: a => UI.showLive(Number(a)), ttRetry: () => UI.compute(), fitPolicy: () => { UI.S.policy = true; UI.render(); UI.redrawMap(true); },
+  closeInfo: () => { $('#sheet').hidden = true; Tour.refresh(); }, find: a => UI.find(a), pickAddr: a => UI.pickAddr(a), preset: a => UI.preset(a),
+  policy: (a, el, at) => UI.showPolicy(a, at), live: a => UI.showLive(Number(a)), ttRetry: () => UI.compute(), fitPolicy: () => { UI.S.policy = true; UI.render(); UI.redrawMap('city'); UI.showMap(); },
   closeBub: (a, el) => { const host = el.closest('[data-bub]'); const b = el.closest('.bub'); if (b) b.remove(); if (host) host.remove(); },
 };
 let lastKey = '', lastAt = 0;
@@ -1707,5 +1866,6 @@ $('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') $('#sh
 MapView.onPin = (which, ll) => UI.movePin(which, ll);
 UI.compute();
 MapView.init().then(() => UI.redrawMap());
+Tour.maybeWelcome();
 
 </script>
